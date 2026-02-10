@@ -8,6 +8,14 @@ const AdminLayout = ({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [pendingCount, setPendingCount] = React.useState(0);
+    const [user, setUser] = React.useState(null);
+
+    React.useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
 
     React.useEffect(() => {
         const fetchCount = async () => {
@@ -130,11 +138,11 @@ const AdminLayout = ({ children }) => {
 
                     <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-md cursor-default group">
                         <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs group-hover:bg-orange-200 transition-colors">
-                            AD
+                            {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-xs font-bold text-slate-800">Administrateur</span>
-                            <span className="text-[9px] font-bold text-orange-600 uppercase">Super Admin</span>
+                            <span className="text-xs font-bold text-slate-800">{user?.name || 'Administrateur'}</span>
+                            <span className="text-[9px] font-bold text-orange-600 uppercase">{user?.role || 'Super Admin'}</span>
                         </div>
                     </div>
                 </header>

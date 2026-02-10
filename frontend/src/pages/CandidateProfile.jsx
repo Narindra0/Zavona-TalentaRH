@@ -54,7 +54,7 @@ const CandidateProfile = () => {
                     contract_type: data.contract_type || "CDI",
                     languages: data.languages || [],
                     consultant_note: data.consultant_note && data.consultant_note.trim() !== "" ? data.consultant_note : null,
-                    cv_url: `${api.defaults.baseURL}/candidates/${id}/cv#toolbar=0&navpanes=0&scrollbar=0`
+                    cv_url: data.signed_cv_url ? `${data.signed_cv_url}&#toolbar=0&navpanes=0&scrollbar=0` : null
                 };
                 setTalent(mappedTalent);
                 setLoading(false);

@@ -62,19 +62,13 @@ class JobCategorizationService
         
         $normalizedTitle = Str::lower($title);
         
-        // Logical Parent Suggestion (Basic)
-        if (Str::contains($normalizedTitle, ['dev', 'code', 'prog', 'web', 'data', 'cloud', 'system', 'admin'])) {
-            $suggestedCategory = "Développement Informatique";
-        } elseif (Str::contains($normalizedTitle, ['design', 'graph', 'ux', 'ui', 'motion', 'crea'])) {
-            $suggestedCategory = "Design & Création";
-        } elseif (Str::contains($normalizedTitle, ['rh', 'recrut', 'ressources', 'human', 'paye', 'formation'])) {
-            $suggestedCategory = "Ressources Humaines";
-        } elseif (Str::contains($normalizedTitle, ['commercia', 'vente', 'business', 'vendeur', 'client'])) {
-            $suggestedCategory = "Commercial & Vente";
-        } elseif (Str::contains($normalizedTitle, ['marketing', 'comm', 'manager', 'social', 'media'])) {
-            $suggestedCategory = "Marketing & Communication";
-        } elseif (Str::contains($normalizedTitle, ['finance', 'compta', 'audit', 'banque', 'eco'])) {
-            $suggestedCategory = "Finance & Comptabilité";
+        $rules = config('categorization.keywords', []);
+
+        foreach ($rules as $category => $keywords) {
+            if (Str::contains($normalizedTitle, $keywords)) {
+                $suggestedCategory = $category;
+                break;
+            }
         }
 
         // Log suggestion if not already logged (avoid duplicates for pending)

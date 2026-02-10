@@ -3,15 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Candidate;
-use App\Models\Category;
-use App\Models\Skill;
-use App\Models\SubCategory;
+use App\Http\Requests\StoreCandidateRequest;
+use App\Http\Requests\UpdateCandidateRequest;
+use App\Services\CandidateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class CandidateController extends Controller
 {
+    protected $candidateService;
+
+    public function __construct(CandidateService $candidateService)
+    {
+        $this->candidateService = $candidateService;
+    }
+
     public function index(Request $request)
     {
         $query = Candidate::with(['category', 'subCategory', 'skills']);
@@ -24,47 +30,12 @@ class CandidateController extends Controller
         return response()->json($candidates);
     }
 
-    // Removal of create method
-
-    public function store(Request $request)
+    public function store(StoreCandidateRequest $request)
     {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string|max:20',
-            'position_searched' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'contract_type' => 'nullable|string|in:CDI,CDD,Stage',
-            'experience_level' => 'required|in:débutant,junior,intermédiaire,senior,expert',
-            'description' => 'nullable|string',
-            'skills' => 'array',
-            'skills.*' => 'exists:skills,id',
-            'cv_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
-        ]);
-
-        Log::info('Tentative de création de candidat', $request->except(['cv_file']));
-
-        $candidate = Candidate::create($request->except(['skills', 'cv_file']));
-
-        if ($request->has('skills')) {
-            $candidate->skills()->attach($request->skills);
-        }
-
-        if ($request->hasFile('cv_file')) {
-            Log::info('Fichier CV détecté : ' . $request->file('cv_file')->getClientOriginalName());
-            $path = $request->file('cv_file')->store('cv_files', 'public');
-            Log::info('Fichier CV stocké à : ' . $path);
-            
-            $candidate->cvFiles()->create([
-                'file_path' => $path,
-                'source' => 'MANUAL',
-                'parsed' => false,
-            ]);
-        } else {
-            Log::warning('Aucun fichier CV détecté dans la requête CandidateController@store');
-        }
+        $candidate = $this->candidateService->createCandidate(
+            $request->validated(),
+            $request->file('cv_file')
+        );
 
         return response()->json([
             'message' => 'Candidat créé avec succès.',
@@ -80,6 +51,9 @@ class CandidateController extends Controller
         if (!auth('sanctum')->check()) {
             $candidate->email = 'Contactez-nous via ZANOVA';
             $candidate->phone = 'Contactez-nous via ZANOVA';
+        } else {
+            // Si admin/authentifié, on charge les intérêts
+            $candidate->load('recruiterInterests');
         }
         
         return response()->json($candidate);
@@ -101,40 +75,13 @@ class CandidateController extends Controller
         ]);
     }
 
-    // Removal of edit method
-
-    public function update(Request $request, Candidate $candidate)
+    public function update(UpdateCandidateRequest $request, Candidate $candidate)
     {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string|max:20',
-            'position_searched' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'contract_type' => 'nullable|string|in:CDI,CDD,Stage',
-            'experience_level' => 'required|in:débutant,junior,intermédiaire,senior,expert',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:PENDING,ACTIVE,HIRED,ARCHIVED',
-            'skills' => 'array',
-            'skills.*' => 'exists:skills,id',
-            'cv_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
-        ]);
-
-        $candidate->update($request->except(['skills', 'cv_file']));
-
-        $candidate->skills()->sync($request->skills ?? []);
-
-        if ($request->hasFile('cv_file')) {
-            $path = $request->file('cv_file')->store('cv_files', 'public');
-            
-            $candidate->cvFiles()->create([
-                'file_path' => $path,
-                'source' => 'MANUAL',
-                'parsed' => false,
-            ]);
-        }
+        $candidate = $this->candidateService->updateCandidate(
+            $candidate,
+            $request->validated(),
+            $request->file('cv_file')
+        );
 
         return response()->json([
             'message' => 'Candidat mis à jour avec succès.',
@@ -148,15 +95,7 @@ class CandidateController extends Controller
             'cv_file' => 'required|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        if ($request->hasFile('cv_file')) {
-            $path = $request->file('cv_file')->store('cv_files', 'public');
-            
-            $candidate->cvFiles()->create([
-                'file_path' => $path,
-                'source' => 'MANUAL',
-                'parsed' => false,
-            ]);
-        }
+        $this->candidateService->storeCv($candidate, $request->file('cv_file'));
 
         return response()->json([
             'message' => 'CV ajouté avec succès.',
@@ -180,11 +119,7 @@ class CandidateController extends Controller
 
     public function destroy(Candidate $candidate)
     {
-        foreach ($candidate->cvFiles as $cvFile) {
-            Storage::disk('public')->delete($cvFile->file_path);
-        }
-        
-        $candidate->delete();
+        $this->candidateService->deleteCandidate($candidate);
 
         return response()->json([
             'message' => 'Candidat supprimé avec succès.'

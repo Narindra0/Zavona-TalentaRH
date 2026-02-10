@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Removal of showLogin method
+
 
     public function login(Request $request)
     {

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\CvFile;
+use Illuminate\Support\Facades\URL;
 
 class Candidate extends Model
 {
@@ -23,6 +24,8 @@ class Candidate extends Model
         'description',
         'status'
     ];
+
+    protected $appends = ['signed_cv_url'];
 
     protected $casts = [
         'status' => 'string',
@@ -53,13 +56,15 @@ class Candidate extends Model
         return $this->hasMany(RecruiterInterest::class);
     }
 
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'ACTIVE');
-    }
+
 
     public function getFullNameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getSignedCvUrlAttribute(): string
+    {
+        return URL::signedRoute('candidates.cv', ['candidate' => $this->id]);
     }
 }

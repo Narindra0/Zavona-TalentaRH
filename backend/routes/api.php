@@ -27,7 +27,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'getSubCategories']);
 Route::get('/candidates', [CandidateController::class, 'index']);
 Route::get('/candidates/{candidate}', [CandidateController::class, 'show']); // Rendu public pour la page profil
-Route::get('/candidates/{candidate}/cv', [CandidateController::class, 'viewCv']); 
+Route::get('/candidates/{candidate}/cv', [CandidateController::class, 'viewCv'])->name('candidates.cv')->middleware('signed'); 
 Route::post('/candidates', [CandidateController::class, 'store']); // Déplacé ici pour être public
 Route::get('/skills', [SkillController::class, 'index']);
 Route::get('/categorize-job', [\App\Http\Controllers\JobCategorizationController::class, 'categorize']);
@@ -38,6 +38,9 @@ Route::post('/candidates/{candidate}/uninterest', [RecruiterInterestController::
 
 // Protected API routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (\Illuminate\Http\Request $request) {
+        return $request->user();
+    });
     Route::post('/logout', [AuthController::class, 'logout']);
     
     // Categories & Sub-categories
@@ -50,8 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/sub-categories/{subCategory}', [CategoryController::class, 'destroySubCategory']);
 
     // Candidates
-    // Route::post('/candidates', [CandidateController::class, 'store']); // Commenté car rendu public plus haut
-    // Route::get('/candidates/{candidate}', [CandidateController::class, 'show']); // Commenté car rendu public plus haut
     Route::put('/candidates/{candidate}', [CandidateController::class, 'update']);
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy']);
     Route::post('/candidates/{candidate}/add-cv', [CandidateController::class, 'addCv']);

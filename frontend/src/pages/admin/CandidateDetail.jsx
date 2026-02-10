@@ -51,8 +51,6 @@ const CandidateDetail = () => {
                     category_id: data.category_id,
                     sub_category: data.sub_category?.name || 'N/A',
                     sub_category_id: data.sub_category_id,
-                    sub_category: data.sub_category?.name || 'N/A',
-                    sub_category_id: data.sub_category_id,
                     skills: data.skills?.map(s => s.name) || [],
                     skills_raw: data.skills || [], // Garder les objets pour l'édition
                     bio: data.description || "Aucune description disponible.",
