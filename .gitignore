@@ -1,0 +1,41 @@
+# Laravel specific
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/auth.json
+backend/node_modules/
+backend/public/build/
+backend/public/hot/
+backend/public/storage
+backend/storage/*.key
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/vendor/
+
+# frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Root level
+node_modules/
+vendor/
+.env
+*.log
+
+# IDE and OS specific
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.phpunit.result.cache
+.phpunit.cache/

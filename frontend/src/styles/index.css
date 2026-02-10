@@ -1,0 +1,19 @@
+:root {
+    --primary-blue: #1E2B4D;
+    /* Le bleu foncé du bouton et du titre */
+    --accent-orange: #FF7E2D;
+    /* L'orange du dégradé */
+    --text-brown: #8B5E3C;
+    /* Le marron/doré des liens menu */
+    --bg-light: #F4F7FE;
+    /* Un gris/bleu très clair pour le fond */
+    --white: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    /* Une police propre et pro */
+    background-color: var(--white);
+    color: var(--primary-blue);
+}

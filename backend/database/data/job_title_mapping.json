@@ -1,0 +1,182 @@
+{
+    "mappings": [
+        {
+            "keywords": [
+                "web",
+                "fullstack",
+                "site",
+                "internet",
+                "en ligne"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Développeur Fullstack"
+        },
+        {
+            "keywords": [
+                "front",
+                "frontend",
+                "interface",
+                "react",
+                "vue",
+                "angular",
+                "ui dev"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Développeur Frontend"
+        },
+        {
+            "keywords": [
+                "back",
+                "backend",
+                "api",
+                "node",
+                "laravel",
+                "php",
+                "python",
+                "java",
+                "golang"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Développeur Backend"
+        },
+        {
+            "keywords": [
+                "mobile",
+                "ios",
+                "android",
+                "flutter",
+                "swift",
+                "kotlin",
+                "native"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Développeur Mobile"
+        },
+        {
+            "keywords": [
+                "devops",
+                "cloud",
+                "aws",
+                "docker",
+                "kubernetes",
+                "infra",
+                "sre"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "DevOps"
+        },
+        {
+            "keywords": [
+                "data",
+                "science",
+                "ai",
+                "ml",
+                "machine learning",
+                "intelligence artificielle"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Data Scientist"
+        },
+        {
+            "keywords": [
+                "database",
+                "sql",
+                "dba",
+                "base de données",
+                "mysql",
+                "mongodb"
+            ],
+            "category": "Développement Informatique",
+            "sub_category": "Administrateur Base de données"
+        },
+        {
+            "keywords": [
+                "design",
+                "ui",
+                "ux",
+                "maquette",
+                "ergonomie",
+                "utilisateur"
+            ],
+            "category": "Design & Création",
+            "sub_category": "Designer UI/UX"
+        },
+        {
+            "keywords": [
+                "graphiste",
+                "logo",
+                "visuel",
+                "pao",
+                "photoshop",
+                "illustrator"
+            ],
+            "category": "Design & Création",
+            "sub_category": "Graphiste"
+        },
+        {
+            "keywords": [
+                "marketing",
+                "pub",
+                "digital",
+                "croissance",
+                "growth"
+            ],
+            "category": "Marketing & Communication",
+            "sub_category": "Responsable Marketing Digital"
+        },
+        {
+            "keywords": [
+                "community",
+                "social",
+                "réseaux",
+                "facebook",
+                "instagram"
+            ],
+            "category": "Marketing & Communication",
+            "sub_category": "Community Manager"
+        },
+        {
+            "keywords": [
+                "commercial",
+                "vente",
+                "vendeur",
+                "prospection",
+                "terrain"
+            ],
+            "category": "Commercial & Vente",
+            "sub_category": "Commercial"
+        },
+        {
+            "keywords": [
+                "rh",
+                "recrutement",
+                "ressources humaines",
+                "talent"
+            ],
+            "category": "Ressources Humaines",
+            "sub_category": "Recruteur"
+        },
+        {
+            "keywords": [
+                "comptable",
+                "compta",
+                "bilan",
+                "fiscal",
+                "facture"
+            ],
+            "category": "Finance & Comptabilité",
+            "sub_category": "Comptable"
+        },
+        {
+            "keywords": [
+                "chef de projet",
+                "project manager",
+                "pm",
+                "pmo",
+                "pilotage"
+            ],
+            "category": "Management & Direction",
+            "sub_category": "Chef de Projet"
+        }
+    ]
+}
