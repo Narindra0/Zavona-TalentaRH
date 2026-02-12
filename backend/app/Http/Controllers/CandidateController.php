@@ -67,11 +67,15 @@ class CandidateController extends Controller
             return response()->json(['message' => 'CV introuvable'], 404);
         }
 
-        $path = Storage::disk('public')->path($cvFile->file_path);
+        $content = Storage::disk('public')->get($cvFile->file_path);
         
-        return response()->file($path, [
+        return response($content, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="CV_' . $candidate->last_name . '.pdf"',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => '*',
+            'Access-Control-Expose-Headers' => 'Content-Length',
+            'Cache-Control' => 'no-cache, private',
         ]);
     }
 

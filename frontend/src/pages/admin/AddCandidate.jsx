@@ -25,6 +25,7 @@ const AddCandidate = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [isCategorizing, setIsCategorizing] = useState(false);
+    const [isParsing, setIsParsing] = useState(false);
     const [lastAutoCategorizedValue, setLastAutoCategorizedValue] = useState('');
 
     const [formData, setFormData] = useState({
@@ -147,6 +148,9 @@ const AddCandidate = () => {
             const file = e.dataTransfer.files[0];
             setFileName(file.name);
             setCvFile(file);
+            if (file.type === 'application/pdf') {
+                parseCV(file);
+            }
         }
     };
 
@@ -155,6 +159,64 @@ const AddCandidate = () => {
             const file = e.target.files[0];
             setFileName(file.name);
             setCvFile(file);
+            if (file.type === 'application/pdf') {
+                parseCV(file);
+            }
+        }
+    };
+
+    const parseCV = async (file) => {
+        setIsParsing(true);
+        setError(null);
+        const data = new FormData();
+        data.append('cv_file', file);
+
+        try {
+            const response = await api.post('/parse-cv', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            const result = response.data;
+            if (result.error) {
+                console.error("Parsing error:", result.error);
+                return;
+            }
+
+            // Update form data with extracted info
+            setFormData(prev => ({
+                ...prev,
+                first_name: result.first_name || prev.first_name,
+                last_name: result.last_name || prev.last_name,
+                email: result.email || prev.email,
+                phone: result.phone || prev.phone,
+                position_searched: result.position || prev.position_searched
+            }));
+
+            // Handle skills
+            if (result.skills && Array.isArray(result.skills)) {
+                const newSkills = result.skills.map(s => {
+                    // Check if skill already exists in available skills to use its ID
+                    const existing = allAvailableSkills.find(as => as.label.toLowerCase() === s.label.toLowerCase());
+                    return existing ? existing : { value: s.label, label: s.label, isNew: true };
+                });
+
+                // Merge with existing selected skills, avoiding duplicates
+                setSelectedSkills(prev => {
+                    const combined = [...prev];
+                    newSkills.forEach(ns => {
+                        if (!combined.find(cs => cs.label.toLowerCase() === ns.label.toLowerCase())) {
+                            combined.push(ns);
+                        }
+                    });
+                    return combined;
+                });
+            }
+
+        } catch (err) {
+            console.error("Error parsing CV:", err);
+            // Non-blocking error, user can still fill manually
+        } finally {
+            setIsParsing(false);
         }
     };
 
@@ -456,15 +518,19 @@ const AddCandidate = () => {
                                 accept=".pdf,.doc,.docx"
                             />
                             <label htmlFor="cv-upload" className="cursor-pointer flex flex-col items-center gap-4">
-                                <div className="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center">
-                                    <Upload size={24} />
+                                <div className="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center relative">
+                                    {isParsing ? (
+                                        <Loader2 className="animate-spin" size={24} />
+                                    ) : (
+                                        <Upload size={24} />
+                                    )}
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-slate-900">
-                                        {fileName ? "CV sélectionné" : "Télécharger le CV"}
+                                        {isParsing ? "Analyse en cours..." : (fileName ? "CV sélectionné" : "Télécharger le CV")}
                                     </p>
                                     <p className="text-[11px] text-slate-500 mt-1 truncate max-w-[150px]">
-                                        {fileName || "PDF, DOC, DOCX"}
+                                        {fileName || "PDF (Analyse auto)"}
                                     </p>
                                 </div>
                             </label>

@@ -21,7 +21,7 @@ const ContactSection = () => {
     }, []);
 
     return (
-        <section id="contact" className="p-4">
+        <section id="contact" className="py-20 px-4 scroll-mt-24">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-gradient-to-r from-orange-600 to-orange-400 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
                     <div className="p-8 lg:p-14 flex-1 text-white">
@@ -69,11 +69,6 @@ const ContactSection = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Simple Footer */}
-            <footer className="py-10 text-center">
-                <p className="text-slate-500 text-xs">© 2026 ZANOVA Talenta RH. Tous droits réservés.</p>
-            </footer>
         </section>
     );
 };

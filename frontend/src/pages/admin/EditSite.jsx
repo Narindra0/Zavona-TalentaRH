@@ -89,6 +89,14 @@ const EditSite = () => {
                     a: "Oui, une fois votre profil complété, il peut être visible par les recruteurs partenaires à la recherche de profils comme le vôtre."
                 }
             ]
+        },
+        footer: {
+            description: "ZANOVA connecte les talents les plus qualifiés de Madagascar avec les entreprises visionnaires. Nous redéfinissons le recrutement par une approche humaine et innovante.",
+            socials: [
+                { id: 'fb', platform: 'Facebook', url: 'https://facebook.com/zanovah' },
+                { id: 'li', platform: 'LinkedIn', url: 'https://linkedin.com/company/zanova' },
+                { id: 'ig', platform: 'Instagram', url: 'https://instagram.com/zanova' }
+            ]
         }
     };
 
@@ -124,6 +132,11 @@ const EditSite = () => {
                         ...prev.faqs,
                         ...(parsed.faqs || {}),
                         items: parsed?.faqs?.items || prev.faqs.items
+                    },
+                    footer: {
+                        ...prev.footer,
+                        ...(parsed.footer || {}),
+                        socials: parsed?.footer?.socials || prev.footer.socials
                     }
                 }));
             } catch (e) {
@@ -248,6 +261,7 @@ const EditSite = () => {
         { id: 'about', label: 'À Propos', icon: <Type size={18} /> },
         { id: 'faqs', label: 'FAQ', icon: <HelpCircle size={18} /> },
         { id: 'contact', label: 'Contact', icon: <Phone size={18} /> },
+        { id: 'footer', label: 'Pied de page', icon: <Layout size={18} /> },
     ];
 
     const IconComponent = ({ name, size = 16, className = "" }) => {
@@ -668,6 +682,60 @@ const EditSite = () => {
                                         onChange={(e) => updateField('contact', 'address', e.target.value)}
                                     />
                                 </FormGroup>
+                            </div>
+                        )}
+
+                        {activeTab === 'footer' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <FormGroup label="Description du Footer" icon={<Type size={16} />}>
+                                    <textarea
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm font-medium focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none min-h-[120px]"
+                                        value={siteData.footer?.description || ""}
+                                        onChange={(e) => updateField('footer', 'description', e.target.value)}
+                                        placeholder="Texte de présentation dans le footer..."
+                                    />
+                                </FormGroup>
+
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h4 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                        <Globe size={18} className="text-orange-500" />
+                                        Réseaux Sociaux
+                                    </h4>
+
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {siteData.footer?.socials?.map((social, index) => (
+                                            <div key={index} className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col md:flex-row gap-4 items-end">
+                                                <div className="flex-1 w-full space-y-2">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Plateforme</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-orange-500"
+                                                        value={social.platform}
+                                                        onChange={(e) => {
+                                                            const newSocials = [...siteData.footer.socials];
+                                                            newSocials[index] = { ...newSocials[index], platform: e.target.value };
+                                                            updateField('footer', 'socials', newSocials);
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="flex-[2] w-full space-y-2">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Lien (URL)</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500"
+                                                        value={social.url}
+                                                        onChange={(e) => {
+                                                            const newSocials = [...siteData.footer.socials];
+                                                            newSocials[index] = { ...newSocials[index], url: e.target.value };
+                                                            updateField('footer', 'socials', newSocials);
+                                                        }}
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

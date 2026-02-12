@@ -19,6 +19,7 @@ import {
 import api from '../api/axios';
 import logoZTRH from '../assets/Logo-ZTRH.png';
 import RecruiterInterestModal from '../components/RecruiterInterestModal';
+import PdfViewer from '../components/PdfViewer';
 
 const CandidateProfile = () => {
     const { id } = useParams();
@@ -208,12 +209,7 @@ const CandidateProfile = () => {
                         <div className="sticky top-28">
                             <div className="relative bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-slate-200/50 aspect-[1/1.414]">
                                 {talent.cv_url ? (
-                                    <embed
-                                        src={talent.cv_url}
-                                        type="application/pdf"
-                                        className="w-full h-full"
-                                        title="CV Aperçu"
-                                    />
+                                    <PdfViewer url={talent.cv_url.split('#')[0]} />
                                 ) : (
                                     <div className="absolute inset-0 p-8 flex flex-col items-center justify-center text-slate-300 bg-slate-50">
                                         <FileText size={64} className="mb-4" />

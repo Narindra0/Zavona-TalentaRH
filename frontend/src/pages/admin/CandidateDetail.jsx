@@ -16,12 +16,14 @@ import {
     Edit2,
     X,
     Save,
-    ArrowLeft
+    ArrowLeft,
+    Eye
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import api from '../../api/axios';
 import axios from 'axios';
 import CreatableSelect from '../../components/CreatableSelect';
+import PdfViewer from '../../components/PdfViewer';
 
 const CandidateDetail = () => {
     const { id } = useParams();
@@ -39,6 +41,7 @@ const CandidateDetail = () => {
     const [selectedSubCategory, setSelectedSubCategory] = useState(null);
     const [allAvailableSkills, setAllAvailableSkills] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
+    const [showPreview, setShowPreview] = useState(false);
 
     useEffect(() => {
         const fetchCandidate = async () => {
@@ -54,7 +57,7 @@ const CandidateDetail = () => {
                     skills: data.skills?.map(s => s.name) || [],
                     skills_raw: data.skills || [], // Garder les objets pour l'édition
                     bio: data.description || "Aucune description disponible.",
-                    cv_url: data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null
+                    cv_url: data.signed_cv_url || (data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null)
                 };
                 setTalent(mappedTalent);
                 setFormData({
@@ -483,14 +486,24 @@ const CandidateDetail = () => {
                                                     <p className="text-[10px] text-slate-400 uppercase">{file.created_at?.substring(0, 10)}</p>
                                                 </div>
                                             </div>
-                                            <a
-                                                href={`/storage/${file.file_path}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="p-2 text-slate-400 hover:text-orange-600 transition-colors"
-                                            >
-                                                <Download size={16} />
-                                            </a>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => setShowPreview(!showPreview)}
+                                                    className="p-2 text-slate-400 hover:text-orange-600 transition-colors"
+                                                    title="Aperçu"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                <a
+                                                    href={`/storage/${file.file_path}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="p-2 text-slate-400 hover:text-orange-600 transition-colors"
+                                                    title="Télécharger"
+                                                >
+                                                    <Download size={16} />
+                                                </a>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -600,6 +613,23 @@ const CandidateDetail = () => {
                                 </p>
                             )}
                         </div>
+
+                        {showPreview && talent.cv_url && (
+                            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 h-[800px] mb-6">
+                                <div className="flex justify-between items-center mb-4 px-2">
+                                    <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                                        <Eye size={18} className="text-orange-500" /> Aperçu du CV
+                                    </h3>
+                                    <button
+                                        onClick={() => setShowPreview(false)}
+                                        className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-full"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                                <PdfViewer url={talent.cv_url} />
+                            </div>
+                        )}
 
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                             <h3 className="font-bold text-lg text-slate-900 mb-6 border-b border-slate-50 pb-4">Compétences</h3>

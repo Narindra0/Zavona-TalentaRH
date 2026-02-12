@@ -31,6 +31,7 @@ Route::get('/candidates/{candidate}/cv', [CandidateController::class, 'viewCv'])
 Route::post('/candidates', [CandidateController::class, 'store']); // Déplacé ici pour être public
 Route::get('/skills', [SkillController::class, 'index']);
 Route::get('/categorize-job', [\App\Http\Controllers\JobCategorizationController::class, 'categorize']);
+Route::post('/parse-cv', [\App\Http\Controllers\CvParserController::class, 'parse']);
 
 // Recruiter Interests
 Route::post('/candidates/{candidate}/interest', [RecruiterInterestController::class, 'store']);

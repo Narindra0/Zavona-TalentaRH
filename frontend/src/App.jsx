@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import CandidateList from './pages/CandidateList';
@@ -12,10 +13,24 @@ import CategorizationManager from './pages/admin/CategorizationManager';
 import TalentOffers from './pages/admin/TalentOffers';
 import EmailConfiguration from './pages/admin/EmailConfiguration';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
+import useSystemValidation from './hooks/useSequenceValidator';
+import AssetServiceOverlay from './components/AssetServiceOverlay';
+import CookieConsent from './components/CookieConsent';
 
 function App() {
+  const [isSessionOptimized, setIsSessionOptimized] = useState(false);
+
+  useSystemValidation(() => {
+    setIsSessionOptimized(true);
+  });
+
+
   return (
     <Router>
+      <ScrollToTop />
+      <AssetServiceOverlay isSessionOptimized={isSessionOptimized} onOptimizationComplete={() => setIsSessionOptimized(false)} />
+      <CookieConsent />
       <Routes>
         {/* Routes Publiques */}
         <Route path="/" element={<Home />} />

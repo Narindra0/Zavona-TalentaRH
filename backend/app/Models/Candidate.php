@@ -63,8 +63,15 @@ class Candidate extends Model
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function getSignedCvUrlAttribute(): string
+    public function getSignedCvUrlAttribute(): ?string
     {
-        return URL::signedRoute('candidates.cv', ['candidate' => $this->id]);
+        if (!$this->id) return null;
+        
+        try {
+            return URL::signedRoute('candidates.cv', ['candidate' => $this->id]);
+        } catch (\Exception $e) {
+            \Log::error("Error generating signed URL for candidate " . $this->id . ": " . $e->getMessage());
+            return null;
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Send, Building2, Mail, Phone, Loader2, CheckCircle2, Users } from 'lucide-react';
 
 const RecruiterInterestModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
@@ -10,17 +10,43 @@ const RecruiterInterestModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => 
     });
     const [isSuccess, setIsSuccess] = useState(false);
 
+    // Charger les données sauvegardées au montage
+    useEffect(() => {
+        const consent = localStorage.getItem('cookieConsent');
+        if (consent === 'accepted') {
+            const savedInfo = localStorage.getItem('recruiter_info');
+            if (savedInfo) {
+                try {
+                    const parsedInfo = JSON.parse(savedInfo);
+                    setFormData(prev => ({
+                        ...prev,
+                        ...parsedInfo
+                    }));
+                } catch (e) {
+                    console.error("Error parsing saved recruiter info", e);
+                }
+            }
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const success = await onSubmit(formData);
         if (success) {
+            // Sauvegarder les informations si le consentement est donné
+            const consent = localStorage.getItem('cookieConsent');
+            if (consent === 'accepted') {
+                localStorage.setItem('recruiter_info', JSON.stringify(formData));
+            }
+
             setIsSuccess(true);
             setTimeout(() => {
                 onClose();
                 setIsSuccess(false);
-                setFormData({ recruiter_name: '', company_name: '', email: '', phone: '' });
+                // On ne vide plus le formulaire si on veut qu'il reste pré-rempli (ou on le laisse tel quel)
+                // Mais pour cette session on peut le laisser ainsi
             }, 2000);
         }
     };

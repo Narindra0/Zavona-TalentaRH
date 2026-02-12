@@ -13,7 +13,7 @@ const ICON_MAP = {
 const OfferSection = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({
-        title: "Trouvez le profil idéal pour vos besoins",
+        title: "NOS SERVICES & OFFRES",
         description: "ZANOVA met en avant l'humain. Découvrez directement les talents disponibles selon leur mobilité et type de collaboration souhaitée.",
         cards: [
             { id: 'all', title: 'Tous nos Talents', description: "Explorez l'intégralité de notre vivier de talents qualifiés et trouvez la perle rare.", type: 'Tous', icon: 'Users' },
@@ -48,10 +48,7 @@ const OfferSection = () => {
         <section id="offers" className="py-24 px-6 bg-white">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <span className="text-orange-600 font-bold uppercase tracking-widest text-xs">
-                        Nos Talents
-                    </span>
-                    <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-slate-900 uppercase">
+                    <h2 className="text-3xl font-extrabold mb-4 text-slate-900 uppercase">
                         {data.title}
                     </h2>
                     <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">
