@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        \Illuminate\Http\Resources\Json\JsonResource::withoutWrapping();
         \App\Models\RecruiterInterest::observe(\App\Observers\RecruiterInterestObserver::class);
     }
 }

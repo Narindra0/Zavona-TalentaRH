@@ -6,6 +6,7 @@ use App\Models\Candidate;
 use App\Http\Requests\StoreCandidateRequest;
 use App\Http\Requests\UpdateCandidateRequest;
 use App\Services\CandidateService;
+use App\Http\Resources\CandidateResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,6 +21,11 @@ class CandidateController extends Controller
 
     public function index(Request $request)
     {
+        // Validation des paramètres de requête pour éviter les injections/erreurs
+        $request->validate([
+            'status' => 'nullable|in:ACTIVE,HIRED,ARCHIVED',
+        ]);
+
         $query = Candidate::with(['category', 'subCategory', 'skills']);
 
         if ($request->has('status')) {
@@ -27,7 +33,7 @@ class CandidateController extends Controller
         }
 
         $candidates = $query->latest()->get();
-        return response()->json($candidates);
+        return CandidateResource::collection($candidates);
     }
 
     public function store(StoreCandidateRequest $request)
@@ -47,16 +53,12 @@ class CandidateController extends Controller
     {
         $candidate->load(['category', 'subCategory', 'skills', 'cvFiles']);
         
-        // Confidentialité : Masquer les données de contact uniquement pour la vue publique
-        if (!auth('sanctum')->check()) {
-            $candidate->email = 'Contactez-nous via ZANOVA';
-            $candidate->phone = 'Contactez-nous via ZANOVA';
-        } else {
-            // Si admin/authentifié, on charge les intérêts
+        // Si admin/authentifié, on charge les intérêts (le masquage est géré par CandidateResource)
+        if (auth('sanctum')->check()) {
             $candidate->load('recruiterInterests');
         }
         
-        return response()->json($candidate);
+        return new CandidateResource($candidate);
     }
 
     public function viewCv(Candidate $candidate)

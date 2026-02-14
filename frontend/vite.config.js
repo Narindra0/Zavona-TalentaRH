@@ -27,4 +27,8 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    sourcemap: false, // Désactive les sourcemaps pour protéger le code source en production
+    minify: 'terser', // Utilise Terser pour une minification plus agressive si nécessaire
+  },
 })
