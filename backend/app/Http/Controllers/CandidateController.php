@@ -21,18 +21,42 @@ class CandidateController extends Controller
 
     public function index(Request $request)
     {
-        // Validation des paramètres de requête pour éviter les injections/erreurs
+        // Validation des paramètres de requête
         $request->validate([
             'status' => 'nullable|in:ACTIVE,HIRED,ARCHIVED',
+            'search' => 'nullable|string|max:255',
+            'contract_type' => 'nullable|in:CDI,CDD,STAGE',
         ]);
 
         $query = Candidate::with(['category', 'subCategory', 'skills']);
 
+        // Filtrage par statut (défaut ACTIVE pour la liste publique)
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        $candidates = $query->latest()->get();
+        // Filtrage par type de contrat
+        if ($request->has('contract_type')) {
+            $query->where('contract_type', $request->contract_type);
+        }
+
+        // Recherche textuelle multi-colonnes
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('position_searched', 'like', "%{$search}%")
+                  ->orWhereHas('category', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('skills', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $candidates = $query->latest()->paginate(10);
         return CandidateResource::collection($candidates);
     }
 
@@ -120,6 +144,17 @@ class CandidateController extends Controller
         return response()->json([
             'message' => 'Statut mis à jour avec succès.',
             'data' => $candidate
+        ]);
+    }
+
+    public function stats()
+    {
+        return response()->json([
+            'total' => Candidate::count(),
+            'active' => Candidate::where('status', 'ACTIVE')->count(),
+            'hired' => Candidate::where('status', 'HIRED')->count(),
+            'archived' => Candidate::where('status', 'ARCHIVED')->count(),
+            'pending' => Candidate::where('status', 'PENDING')->count(), // assuming PENDING might exist or be used
         ]);
     }
 

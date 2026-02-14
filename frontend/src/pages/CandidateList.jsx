@@ -6,27 +6,56 @@ import CandidateCard from '../components/CandidateCard';
 import api from '../api/axios';
 
 const CandidateList = () => {
-    const [searchParams] = useSearchParams();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [contractFilter, setContractFilter] = useState("Tous les contrats");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
+    const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+    const [contractFilter, setContractFilter] = useState(searchParams.get('type')?.toUpperCase() || "Tous les contrats");
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        total: 0
+    });
+
+    // Debounce search term to avoid too many API calls
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
 
     useEffect(() => {
         const fetchCandidates = async () => {
+            setLoading(true);
             try {
-                const response = await api.get('/candidates', {
-                    params: { status: 'ACTIVE' }
-                });
-                // Map API response to match CandidateCard expectations
-                const mappedCandidates = response.data.map(candidate => ({
+                const params = {
+                    status: 'ACTIVE',
+                    page: pagination.current_page,
+                    search: debouncedSearch || undefined,
+                    contract_type: (contractFilter !== "Tous les contrats") ? contractFilter : undefined
+                };
+
+                const response = await api.get('/candidates', { params });
+
+                // Laravel Paginated response structure: { data: [...], links: {...}, meta: {...} }
+                const { data, meta } = response.data;
+
+                const mappedCandidates = data.map(candidate => ({
                     ...candidate,
                     category: candidate.category?.name || 'N/A',
                     sub_category: candidate.sub_category?.name || 'N/A',
-                    skills: candidate.skills?.map(skill => skill.name) || [] // Extract skill names
+                    skills: candidate.skills?.map(skill => skill.name) || []
                 }));
+
                 setCandidates(mappedCandidates);
+                setPagination({
+                    current_page: meta.current_page,
+                    last_page: meta.last_page,
+                    total: meta.total
+                });
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching candidates:", err);
@@ -36,7 +65,7 @@ const CandidateList = () => {
         };
 
         fetchCandidates();
-    }, []);
+    }, [pagination.current_page, debouncedSearch, contractFilter]);
 
     useEffect(() => {
         const typeParam = searchParams.get('type');
@@ -49,20 +78,12 @@ const CandidateList = () => {
         }
     }, [searchParams]);
 
-    const filteredCandidates = useMemo(() => {
-        return candidates.filter(talent => {
-            const fullName = `${talent.first_name} ${talent.last_name}`.toLowerCase();
-            const matchesSearch =
-                fullName.includes(searchTerm.toLowerCase()) ||
-                talent.position_searched.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (talent.category && talent.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (talent.skills && talent.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())));
-
-            const matchesContract = contractFilter === "Tous les contrats" || talent.contract_type === contractFilter;
-
-            return matchesSearch && matchesContract;
-        });
-    }, [searchTerm, contractFilter, candidates]);
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setPagination(prev => ({ ...prev, current_page: newPage }));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     if (loading) {
         return (
@@ -153,7 +174,7 @@ const CandidateList = () => {
                                 Résultats de recherche
                             </h3>
                             <p className="text-slate-900 font-bold text-xl mt-1">
-                                {filteredCandidates.length} profil{filteredCandidates.length > 1 ? 's' : ''} trouvé{filteredCandidates.length > 1 ? 's' : ''}
+                                {pagination.total} profil{pagination.total > 1 ? 's' : ''} trouvé{pagination.total > 1 ? 's' : ''}
                             </p>
                         </div>
                         <button className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white px-4 py-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
@@ -163,12 +184,50 @@ const CandidateList = () => {
                     </div>
 
                     {/* Grille de Talents */}
-                    {filteredCandidates.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredCandidates.map((candidate) => (
-                                <CandidateCard key={candidate.id} candidate={candidate} />
-                            ))}
-                        </div>
+                    {candidates.length > 0 ? (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {candidates.map((candidate) => (
+                                    <CandidateCard key={candidate.id} candidate={candidate} />
+                                ))}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {pagination.last_page > 1 && (
+                                <div className="mt-16 flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => handlePageChange(pagination.current_page - 1)}
+                                        disabled={pagination.current_page === 1}
+                                        className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-orange-500 hover:border-orange-200 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all"
+                                    >
+                                        Précédent
+                                    </button>
+
+                                    <div className="flex items-center gap-1">
+                                        {[...Array(pagination.last_page)].map((_, i) => (
+                                            <button
+                                                key={i + 1}
+                                                onClick={() => handlePageChange(i + 1)}
+                                                className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${pagination.current_page === i + 1
+                                                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                                                        : 'text-slate-400 hover:bg-white hover:text-orange-500'
+                                                    }`}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={() => handlePageChange(pagination.current_page + 1)}
+                                        disabled={pagination.current_page === pagination.last_page}
+                                        className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-orange-500 hover:border-orange-200 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all"
+                                    >
+                                        Suivant
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="text-center py-24 bg-white rounded-3xl border border-slate-100">
                             <p className="text-slate-400 font-medium">Aucun talent ne correspond à ces critères.</p>

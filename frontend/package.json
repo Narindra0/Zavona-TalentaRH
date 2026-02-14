@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.2.8",
-    "@tailwindcss/postcss": "^4.1.18",
-    "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.4",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",

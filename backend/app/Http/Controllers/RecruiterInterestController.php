@@ -59,11 +59,28 @@ class RecruiterInterestController extends Controller
      * List all recruiter interests for the admin.
      * Protected route.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $interests = RecruiterInterest::with('candidate')
-            ->latest()
-            ->get();
+        $query = RecruiterInterest::with('candidate');
+
+        if ($request->has('status') && $request->status !== 'ALL') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('recruiter_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereHas('candidate', function($q2) use ($search) {
+                      $q2->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $interests = $query->latest()->paginate(10);
 
         return response()->json($interests);
     }

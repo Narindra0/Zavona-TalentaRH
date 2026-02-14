@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy']);
     Route::post('/candidates/{candidate}/add-cv', [CandidateController::class, 'addCv']);
     Route::patch('/candidates/{candidate}/update-status', [CandidateController::class, 'updateStatus']);
+    Route::get('/admin/candidates/stats', [CandidateController::class, 'stats']);
 
     // Skills
     Route::post('/skills', [SkillController::class, 'store']);

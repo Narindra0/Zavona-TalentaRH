@@ -17,77 +17,121 @@ import {
 const Dashboard = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [pendingCount, setPendingCount] = useState(0);
+    const [statsData, setStatsData] = useState({ total: 0, active: 0, pending: 0 });
+    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
+
+    // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPagination(prev => ({ ...prev, current_page: 1 }));
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
+    const fetchCandidates = async (page = 1, search = '', append = false) => {
+        if (page === 1 && !append) setLoading(true);
+        else setLoadingMore(true);
+
+        try {
+            const response = await api.get('/candidates', {
+                params: {
+                    page,
+                    search: search || undefined
+                }
+            });
+            const { data, meta } = response.data;
+            const mappedCandidates = data.map(c => ({
+                ...c,
+                category: c.category?.name || 'N/A',
+                sub_category: c.sub_category?.name || 'N/A',
+            }));
+
+            if (append) {
+                setCandidates(prev => [...prev, ...mappedCandidates]);
+            } else {
+                setCandidates(mappedCandidates);
+            }
+
+            setPagination({
+                current_page: meta.current_page,
+                last_page: meta.last_page
+            });
+        } catch (err) {
+            console.error("Error fetching candidates:", err);
+            setError("Erreur chargement données");
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchCandidates = async () => {
-            try {
-                const response = await api.get('/candidates');
-                const mappedCandidates = response.data.map(c => ({
-                    ...c,
-                    category: c.category?.name || 'N/A',
-                    sub_category: c.sub_category?.name || 'N/A',
-                }));
-                setCandidates(mappedCandidates);
-                setLoading(false);
-            } catch (err) {
-                console.error("Error fetching candidates:", err);
-                setError("Erreur chargement données");
-                setLoading(false);
-            }
-        };
-        fetchCandidates();
+        fetchCandidates(1, debouncedSearch, false);
+    }, [debouncedSearch]);
 
-        const fetchPending = async () => {
+    useEffect(() => {
+        const fetchDashboardData = async () => {
             try {
-                const response = await api.get('/pending-categories');
-                setPendingCount(response.data.length);
+                const [statsRes, pendingRes] = await Promise.all([
+                    api.get('/admin/candidates/stats'),
+                    api.get('/pending-categories')
+                ]);
+                setStatsData(statsRes.data);
+                setPendingCount(pendingRes.data.length);
             } catch (err) {
-                console.error("Error fetching pending:", err);
+                console.error("Error fetching dashboard meta:", err);
             }
         };
-        fetchPending();
+        fetchDashboardData();
     }, []);
+
+    const handleLoadMore = () => {
+        if (pagination.current_page < pagination.last_page) {
+            fetchCandidates(pagination.current_page + 1, debouncedSearch, true);
+        }
+    };
 
     const stats = [
         {
             label: 'Total Candidats',
-            value: candidates.length.toString(),
+            value: statsData.total?.toString() || '0',
             icon: <Users size={16} />,
             color: 'text-blue-600',
             bg: 'bg-blue-50'
         },
         {
             label: 'Actifs',
-            value: candidates.filter(c => c.status === 'ACTIVE').length.toString(),
+            value: statsData.active?.toString() || '0',
             icon: <CheckCircle2 size={16} />,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50'
         },
         {
             label: 'En Attente',
-            // Mocking 'En Attente' logic for now as status might not capture it perfectly yet
-            value: candidates.filter(c => c.status === 'PENDING').length.toString(),
+            value: statsData.pending?.toString() || '0',
             icon: <Clock size={16} />,
             color: 'text-amber-600',
             bg: 'bg-amber-50'
         },
     ];
 
-    const filteredCandidates = candidates.filter(c =>
-        `${c.first_name} ${c.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.position_searched.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (c.category && c.category.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    // Remove client-side filtering since we now search server-side
+    const filteredCandidates = candidates;
 
     const handleDelete = async (id) => {
         if (window.confirm("Êtes-vous sûr de vouloir supprimer ce candidat ?")) {
             try {
                 await api.delete(`/candidates/${id}`);
                 setCandidates(prev => prev.filter(c => c.id !== id));
+                // Update stats locally
+                setStatsData(prev => ({ ...prev, total: prev.total - 1 }));
             } catch (err) {
                 console.error("Error deleting candidate:", err);
                 alert("Erreur lors de la suppression.");
@@ -107,6 +151,7 @@ const Dashboard = () => {
 
     return (
         <AdminLayout>
+            {/* ... alert ... */}
             {pendingCount > 0 && (
                 <div className="mb-6 bg-orange-50 border border-orange-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-3">
@@ -130,6 +175,7 @@ const Dashboard = () => {
             {/* Action Bar avec Recherche */}
             <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
                 <div className="w-full md:flex-1 md:max-w-md relative group">
+                    <BR />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" size={18} />
                     <input
                         type="text"
@@ -167,6 +213,7 @@ const Dashboard = () => {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
+                        {/* ... table header ... */}
                         <thead>
                             <tr className="bg-slate-50/50">
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nom complet</th>
@@ -177,8 +224,8 @@ const Dashboard = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {filteredCandidates.length > 0 ? (
-                                filteredCandidates.map((c) => (
+                            {candidates.length > 0 ? (
+                                candidates.map((c) => (
                                     <tr key={c.id} className="hover:bg-slate-50/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -237,11 +284,17 @@ const Dashboard = () => {
                         </tbody>
                     </table>
                 </div>
-                <div className="p-4 bg-slate-50/20 text-center border-t border-slate-50">
-                    <button className="text-xs font-bold text-slate-400 hover:text-orange-600 transition-colors uppercase tracking-widest">
-                        Charger plus de candidats
-                    </button>
-                </div>
+                {pagination.current_page < pagination.last_page && (
+                    <div className="p-4 bg-slate-50/20 text-center border-t border-slate-50">
+                        <button
+                            onClick={handleLoadMore}
+                            disabled={loadingMore}
+                            className="text-xs font-bold text-slate-400 hover:text-orange-600 transition-colors uppercase tracking-widest disabled:opacity-50"
+                        >
+                            {loadingMore ? 'Chargement...' : 'Charger plus de candidats'}
+                        </button>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

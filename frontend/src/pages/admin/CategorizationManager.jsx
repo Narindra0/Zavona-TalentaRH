@@ -14,9 +14,9 @@ import {
     Search,
     Save,
     AlertCircle,
-    ChevronRight,
-    Tag
+    ChevronRight
 } from 'lucide-react';
+
 
 const CategorizationManager = () => {
     const [activeTab, setActiveTab] = useState('categories');

@@ -18,14 +18,38 @@ import { Link } from 'react-router-dom';
 const TalentOffers = () => {
     const [interests, setInterests] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [filterStatus, setFilterStatus] = useState('ALL');
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        total: 0
+    });
+
+    // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPagination(prev => ({ ...prev, current_page: 1 }));
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     useEffect(() => {
         const fetchInterests = async () => {
+            setLoading(true);
             try {
-                const response = await api.get('/admin/recruiter-interests');
-                setInterests(response.data);
+                const response = await api.get('/admin/recruiter-interests', {
+                    params: {
+                        page: pagination.current_page,
+                        search: debouncedSearch || undefined,
+                        status: filterStatus !== 'ALL' ? filterStatus : undefined
+                    }
+                });
+                const { data, last_page, current_page, total } = response.data;
+                setInterests(data);
+                setPagination({ current_page, last_page, total });
             } catch (err) {
                 console.error("Error fetching interests:", err);
             } finally {
@@ -33,16 +57,16 @@ const TalentOffers = () => {
             }
         };
         fetchInterests();
-    }, []);
+    }, [pagination.current_page, debouncedSearch, filterStatus]);
 
-    const filteredInterests = interests.filter(item => {
-        const matchesSearch =
-            item.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.candidate?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.candidate?.last_name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterStatus === 'ALL' || item.status === filterStatus;
-        return matchesSearch && matchesStatus;
-    });
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setPagination(prev => ({ ...prev, current_page: newPage }));
+        }
+    };
+
+    // Server-side filtering now handles this
+    const filteredInterests = interests;
 
     const handleStatusChange = async (interestId, newStatus) => {
         try {
@@ -89,7 +113,7 @@ const TalentOffers = () => {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-400 uppercase">Total Intérêts</p>
-                            <h3 className="text-2xl font-bold text-slate-900">{interests.length}</h3>
+                            <h3 className="text-2xl font-bold text-slate-900">{pagination.total}</h3>
                         </div>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
@@ -125,8 +149,8 @@ const TalentOffers = () => {
                                 type="text"
                                 placeholder="Rechercher une entreprise ou un talent..."
                                 className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                         <select
@@ -270,6 +294,33 @@ const TalentOffers = () => {
                         </table>
                     </div>
                 </div>
+                {/* Pagination Controls */}
+                {pagination.last_page > 1 && (
+                    <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-slate-50 rounded-b-3xl shadow-sm">
+                        <p className="text-xs text-slate-500 font-medium">
+                            Affichage de {interests.length} sur {pagination.total} intérêts
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(pagination.current_page - 1)}
+                                disabled={pagination.current_page === 1}
+                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-orange-600 disabled:opacity-50 transition-colors"
+                            >
+                                Précédent
+                            </button>
+                            <span className="text-xs font-bold text-slate-900">
+                                Page {pagination.current_page} sur {pagination.last_page}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(pagination.current_page + 1)}
+                                disabled={pagination.current_page === pagination.last_page}
+                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-orange-600 disabled:opacity-50 transition-colors"
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );
