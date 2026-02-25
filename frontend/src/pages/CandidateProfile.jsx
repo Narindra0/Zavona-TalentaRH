@@ -14,12 +14,13 @@ import {
     Share2,
     Calendar,
     Loader2,
-    X
+    X,
+    User,
+    Star
 } from 'lucide-react';
 import api from '../api/axios';
 import logoZTRH from '../assets/Logo-ZTRH.png';
 import RecruiterInterestModal from '../components/RecruiterInterestModal';
-import PdfViewer from '../components/PdfViewer';
 
 const CandidateProfile = () => {
     const { id } = useParams();
@@ -54,8 +55,7 @@ const CandidateProfile = () => {
                     disponibility: "Immédiate",
                     contract_type: data.contract_type || "CDI",
                     languages: data.languages || [],
-                    consultant_note: data.consultant_note && data.consultant_note.trim() !== "" ? data.consultant_note : null,
-                    cv_url: data.signed_cv_url ? `${data.signed_cv_url}&#toolbar=0&navpanes=0&scrollbar=0` : null
+                    consultant_note: data.consultant_note && data.consultant_note.trim() !== "" ? data.consultant_note : null
                 };
                 setTalent(mappedTalent);
                 setLoading(false);
@@ -164,36 +164,28 @@ const CandidateProfile = () => {
             </nav>
 
             <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8 lg:py-12">
-                {/* Actions de retour et utilitaires */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <button
-                        onClick={() => navigate('/talents')}
-                        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm transition-colors w-fit"
-                    >
-                        <ArrowLeft size={18} />
-                        Retour aux résultats
-                    </button>
-                    <div className="flex gap-2">
-                        <button className="p-2.5 text-slate-400 hover:text-slate-600 bg-white border border-slate-100 rounded-xl transition-all shadow-sm">
-                            <Share2 size={18} />
+                {/* Actions flottantes */}
+                <div className="fixed bottom-8 right-8 flex flex-col gap-3 z-40">
+                    {isInterested ? (
+                        <button
+                            onClick={handleUninterest}
+                            className="bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl text-sm font-bold hover:bg-slate-200 transition-all flex items-center gap-2 shadow-lg shadow-slate-200"
+                        >
+                            <X size={18} />
+                            Désintéresser
                         </button>
-                        {isInterested ? (
-                            <button
-                                onClick={handleUninterest}
-                                className="bg-slate-100 text-slate-600 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all flex items-center gap-2 shadow-sm"
-                            >
-                                <X size={18} />
-                                Désintéresser
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg shadow-slate-200 cta-pulse"
-                            >
-                                Intéressé par le talent
-                            </button>
-                        )}
-                    </div>
+                    ) : (
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg shadow-slate-900/30 cta-pulse"
+                        >
+                            <Star size={18} />
+                            Intéressé par le talent
+                        </button>
+                    )}
+                    <button className="bg-white text-slate-600 p-3 rounded-2xl hover:bg-slate-50 transition-all shadow-lg shadow-slate-200">
+                        <Share2 size={18} />
+                    </button>
                 </div>
 
                 <RecruiterInterestModal
@@ -203,148 +195,135 @@ const CandidateProfile = () => {
                     isSubmitting={isSubmittingInterest}
                 />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
-                    {/* COLONNE GAUCHE : Visualisation du CV */}
-                    <div className="lg:col-span-5 xl:col-span-4">
-                        <div className="sticky top-28">
-                            <div className="relative bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-slate-200/50 aspect-[1/1.414]">
-                                {talent.cv_url ? (
-                                    <PdfViewer url={talent.cv_url.split('#')[0]} />
-                                ) : (
-                                    <div className="absolute inset-0 p-8 flex flex-col items-center justify-center text-slate-300 bg-slate-50">
-                                        <FileText size={64} className="mb-4" />
-                                        <p className="font-bold text-sm uppercase tracking-widest">Aucun CV disponible</p>
+                <div className="max-w-4xl mx-auto">
+                    {/* Carte principale du profil */}
+                    <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                        {/* En-tête du profil avec avatar stylisé */}
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 px-8 py-12 relative">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+                            <div className="relative z-10">
+                                {/* Avatar et infos principales */}
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-500/25 mb-6">
+                                        <User className="text-white" size={48} />
                                     </div>
+                                    <span className={`inline-flex px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border mb-4 ${style}`}>
+                                        {talent.contract_type}
+                                    </span>
+                                    <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
+                                        {talent.first_name} {talent.last_name}
+                                    </h1>
+                                    <p className="text-xl font-semibold text-orange-400 mb-6">
+                                        {talent.position_searched}
+                                    </p>
+                                    
+                                    {/* Métriques clés */}
+                                    <div className="flex flex-wrap justify-center gap-6 text-sm">
+                                        <div className="flex items-center gap-2 text-slate-300">
+                                            <Briefcase size={16} />
+                                            {talent.experience_level} d'expérience
+                                        </div>
+                                        <div className="flex items-center gap-2 text-slate-300">
+                                            <MapPin size={16} />
+                                            {talent.location}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-slate-300">
+                                            <Calendar size={16} />
+                                            Dispo : {talent.disponibility}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contenu principal */}
+                        <div className="p-8 lg:p-12 space-y-12">
+                            {/* Résumé professionnel */}
+                            {talent.bio && (
+                                <section className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                                        <h3 className="text-lg font-bold text-slate-900">À propos</h3>
+                                    </div>
+                                    <p className="text-slate-600 leading-relaxed">
+                                        {talent.bio}
+                                    </p>
+                                </section>
+                            )}
+
+                            {/* Compétences et Langues sur deux colonnes */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Expertises Techniques */}
+                                {talent.skills && talent.skills.length > 0 && (
+                                    <section>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                                            <h3 className="text-lg font-bold text-slate-900">Expertises Techniques</h3>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {talent.skills.map((skill, idx) => (
+                                                <div key={idx} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-orange-300 transition-all">
+                                                    <span className="text-sm font-semibold text-slate-700">{skill}</span>
+                                                    <CheckCircle2 size={18} className="text-emerald-500" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* Langues */}
+                                {talent.languages && talent.languages.length > 0 && (
+                                    <section>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                                            <h3 className="text-lg font-bold text-slate-900">Langues</h3>
+                                        </div>
+                                        <div className="flex flex-wrap gap-3">
+                                            {talent.languages.map((lang, idx) => (
+                                                <span key={idx} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-sm font-bold border border-slate-200">
+                                                    {lang}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </section>
                                 )}
                             </div>
-                            <p className="text-center text-slate-400 text-[10px] mt-4 font-bold uppercase tracking-widest opacity-60">
-                                Document certifié conforme par ZANOVA
-                            </p>
+
+                            {/* Note du consultant */}
+                            {talent.consultant_note && (
+                                <section className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-2xl shadow-xl">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <Award className="text-orange-400" size={20} />
+                                        <h3 className="text-lg font-bold text-white">Note du consultant</h3>
+                                    </div>
+                                    <p className="text-slate-300 leading-relaxed mb-6 italic">
+                                        "{talent.consultant_note}"
+                                    </p>
+                                    <div className="flex items-center gap-4 pt-6 border-t border-white/10">
+                                        <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center font-bold text-white text-sm">ZH</div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">ZANOVA Headhunter</p>
+                                            <p className="text-xs text-slate-400 uppercase tracking-tighter">Consultant Senior</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     </div>
 
-                    {/* COLONNE DROITE : Informations détaillées */}
-                    <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-                        <div className="bg-white rounded-3xl border border-slate-100 p-8 lg:p-12 shadow-sm">
-                            {/* En-tête du profil */}
-                            <div className="border-b border-slate-50 pb-10 mb-10">
-                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                                    <div className="space-y-2">
-                                        <span className={`inline-flex px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${style}`}>
-                                            {talent.contract_type}
-                                        </span>
-                                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight leading-tight">
-                                            {talent.first_name} {talent.last_name}
-                                        </h2>
-                                        <p className="text-xl font-bold text-orange-500">
-                                            {talent.position_searched}
-                                        </p>
-
-                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 mt-6">
-                                            <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                                                <Briefcase size={16} className="text-slate-300" />
-                                                {talent.experience_level} d'expérience
-                                            </div>
-                                            <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                                                <MapPin size={16} className="text-slate-300" />
-                                                {talent.location}
-                                            </div>
-                                            <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                                                <Calendar size={16} className="text-slate-300" />
-                                                Dispo : {talent.disponibility}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Contenu principal */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                <div className="space-y-10">
-                                    {/* Résumé Professionnel */}
-                                    {talent.bio && (
-                                        <section>
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-1.5 h-4 bg-orange-500 rounded-full"></div>
-                                                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">À propos</h4>
-                                            </div>
-                                            <p className="text-slate-600 leading-relaxed text-sm font-medium">
-                                                {talent.bio}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    {/* Langues */}
-                                    {talent.languages && talent.languages.length > 0 && (
-                                        <section>
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-1.5 h-4 bg-orange-500 rounded-full"></div>
-                                                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Langues</h4>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {talent.languages.map((lang, idx) => (
-                                                    <span key={idx} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-100">
-                                                        {lang}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </section>
-                                    )}
-                                </div>
-
-                                <div className="space-y-10">
-                                    {/* Expertises Techniques */}
-                                    {talent.skills && talent.skills.length > 0 && (
-                                        <section>
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-1.5 h-4 bg-orange-500 rounded-full"></div>
-                                                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Expertises</h4>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-2.5">
-                                                {talent.skills.map((skill, idx) => (
-                                                    <div key={idx} className="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100 hover:border-orange-100 transition-colors">
-                                                        <span className="text-xs font-bold text-slate-700">{skill}</span>
-                                                        <CheckCircle2 size={16} className="text-emerald-500" />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </section>
-                                    )}
-
-                                    {/* Zone de recommandation */}
-                                    {talent.consultant_note && (
-                                        <section className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl shadow-xl shadow-slate-200">
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Award className="text-orange-400" size={18} />
-                                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Note du consultant</h4>
-                                            </div>
-                                            <p className="text-xs text-slate-300 font-medium leading-relaxed italic mb-6">
-                                                "{talent.consultant_note}"
-                                            </p>
-                                            <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                                                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold text-white text-[10px]">ZH</div>
-                                                <div>
-                                                    <p className="text-[10px] font-bold text-white">ZANOVA Headhunter</p>
-                                                    <p className="text-[9px] text-slate-400 uppercase tracking-tighter">Consultant Senior</p>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    )}
-                                </div>
-                            </div>
+                    {/* Badges de vérification */}
+                    <div className="flex items-center justify-center gap-8 py-8">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Identité vérifiée</span>
                         </div>
-
-                        {/* Pied de page informatif */}
-                        <div className="flex items-center justify-center gap-8 py-4 opacity-40">
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Identité vérifiée</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Tests réussis</span>
-                            </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Tests réussis</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Certifié ZANOVA</span>
                         </div>
                     </div>
                 </div>

@@ -14,7 +14,9 @@ class CandidateService
      */
     public function createCandidate(array $data, ?UploadedFile $cvFile = null): Candidate
     {
-        Log::info('Tentative de création de candidat via CandidateService', collect($data)->except(['cv_file', 'skills'])->toArray());
+        if (app()->environment(['local', 'testing'])) {
+            Log::info('Tentative de création de candidat via CandidateService', collect($data)->except(['cv_file', 'skills'])->toArray());
+        }
 
         $candidate = Candidate::create(collect($data)->except(['skills', 'cv_file'])->toArray());
 
@@ -52,9 +54,13 @@ class CandidateService
      */
     public function storeCv(Candidate $candidate, UploadedFile $file): void
     {
-        Log::info('Fichier CV détecté : ' . $file->getClientOriginalName());
+        if (app()->environment(['local', 'testing'])) {
+            Log::info('Fichier CV détecté : ' . $file->getClientOriginalName());
+        }
         $path = $file->store('cv_files', 'public');
-        Log::info('Fichier CV stocké à : ' . $path);
+        if (app()->environment(['local', 'testing'])) {
+            Log::info('Fichier CV stocké à : ' . $path);
+        }
         
         $candidate->cvFiles()->create([
             'file_path' => $path,

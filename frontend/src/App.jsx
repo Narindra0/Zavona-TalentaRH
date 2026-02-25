@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import CandidateList from './pages/CandidateList';
-import CandidateProfile from './pages/CandidateProfile';
 import Login from './pages/Login';
 import ApplyPage from './pages/ApplyPage';
 import Dashboard from './pages/admin/Dashboard';
@@ -25,7 +24,6 @@ function App() {
     setIsSessionOptimized(true);
   });
 
-
   return (
     <Router>
       <ScrollToTop />
@@ -35,10 +33,8 @@ function App() {
         {/* Routes Publiques */}
         <Route path="/" element={<Home />} />
         <Route path="/talents" element={<CandidateList />} />
-        <Route path="/talents/:id" element={<CandidateProfile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/postuler" element={<ApplyPage />} />
-
 
         {/* Routes Administration protégées */}
         <Route

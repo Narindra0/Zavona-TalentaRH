@@ -111,8 +111,46 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', config('app-settings.email.from_address', 'contact@zavona-rh.com')),
+        'name' => env('MAIL_FROM_NAME', config('app-settings.email.from_name', 'Zavona Talenta RH')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Configuration Email (modifiable par les administrateurs)
+    |--------------------------------------------------------------------------
+    |
+    | Ces paramètres peuvent être modifiés via l'interface d'administration
+    | pour permettre aux équipes RH de configurer l'envoi d'emails sans
+    | avoir besoin d'accéder aux fichiers de configuration.
+    |
+    */
+
+    'settings' => [
+        // Transport par défaut (smtp, sendmail, mailgun, ses, postmark, resend, log)
+        'default_transport' => env('MAIL_MAILER', 'log'),
+        
+        // Configuration SMTP
+        'smtp' => [
+            'host' => env('MAIL_HOST', 'smtp.gmail.com'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME', ''),
+            'password' => env('MAIL_PASSWORD', ''),
+            'timeout' => 30,
+        ],
+        
+        // Informations d'expéditeur
+        'from' => [
+            'address' => env('MAIL_FROM_ADDRESS', 'contact@zavona-rh.com'),
+            'name' => env('MAIL_FROM_NAME', 'Zavona Talenta RH'),
+        ],
+        
+        // Options supplémentaires
+        'reply_to' => [
+            'address' => env('MAIL_REPLY_TO_ADDRESS', null),
+            'name' => env('MAIL_REPLY_TO_NAME', null),
+        ],
     ],
 
 ];

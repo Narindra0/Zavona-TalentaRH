@@ -1,0 +1,3 @@
+Lancer setup.ps1
+Créer un admin avec create-admin.ps1
+Démarrer avec start.bat

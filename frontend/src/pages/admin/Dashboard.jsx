@@ -175,7 +175,6 @@ const Dashboard = () => {
             {/* Action Bar avec Recherche */}
             <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
                 <div className="w-full md:flex-1 md:max-w-md relative group">
-                    <BR />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" size={18} />
                     <input
                         type="text"

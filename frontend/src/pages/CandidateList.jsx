@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, ChevronDown, Filter, Loader2 } from 'lucide-react';
 import PublicLayout from '../layouts/PublicLayout';
 import CandidateCard from '../components/CandidateCard';
+import CandidateProfileModal from '../components/CandidateProfileModal';
 import api from '../api/axios';
 
 const CandidateList = () => {
@@ -13,6 +14,8 @@ const CandidateList = () => {
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
@@ -83,6 +86,16 @@ const CandidateList = () => {
             setPagination(prev => ({ ...prev, current_page: newPage }));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    };
+
+    const handleViewProfile = (candidateId) => {
+        setSelectedCandidate(candidateId);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedCandidate(null);
     };
 
     if (loading) {
@@ -188,7 +201,11 @@ const CandidateList = () => {
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {candidates.map((candidate) => (
-                                    <CandidateCard key={candidate.id} candidate={candidate} />
+                                    <CandidateCard 
+                                        key={candidate.id} 
+                                        candidate={candidate} 
+                                        onViewProfile={handleViewProfile}
+                                    />
                                 ))}
                             </div>
 
@@ -235,6 +252,13 @@ const CandidateList = () => {
                     )}
                 </div>
             </div>
+            
+            {/* Modal de profil */}
+            <CandidateProfileModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                candidateId={selectedCandidate}
+            />
         </PublicLayout>
     );
 };

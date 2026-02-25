@@ -1,7 +1,6 @@
-import { Link } from 'react-router-dom';
 import { Briefcase, GraduationCap } from 'lucide-react';
 
-const CandidateCard = ({ candidate }) => {
+const CandidateCard = ({ candidate, onViewProfile }) => {
     // Mapping des couleurs pour les contrats
     const contractStyles = {
         'CDI': 'border-emerald-100 text-emerald-600 bg-emerald-50/50',
@@ -55,12 +54,12 @@ const CandidateCard = ({ candidate }) => {
                 ))}
             </div>
 
-            <Link
-                to={`/talents/${candidate.id}`}
+            <button
+                onClick={() => onViewProfile(candidate.id)}
                 className="block w-full text-center py-3 bg-slate-50 text-slate-900 rounded-xl text-xs font-bold hover:bg-slate-900 hover:text-white transition-all active:scale-[0.98]"
             >
                 Consulter le profil
-            </Link>
+            </button>
         </div>
     );
 };

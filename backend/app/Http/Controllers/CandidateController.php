@@ -19,13 +19,27 @@ class CandidateController extends Controller
         $this->candidateService = $candidateService;
     }
 
+    /**
+     * Helper method for standardized JSON responses.
+     */
+    private function jsonResponse(string $message, mixed $data = null, int $status = 200): \Illuminate\Http\JsonResponse
+    {
+        $response = ['message' => $message];
+        
+        if ($data !== null) {
+            $response['data'] = $data;
+        }
+        
+        return response()->json($response, $status);
+    }
+
     public function index(Request $request)
     {
         // Validation des paramètres de requête
         $request->validate([
-            'status' => 'nullable|in:ACTIVE,HIRED,ARCHIVED',
+            'status' => 'nullable|in:PENDING,ACTIVE,HIRED,ARCHIVED',
             'search' => 'nullable|string|max:255',
-            'contract_type' => 'nullable|in:CDI,CDD,STAGE',
+            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,TOUS',
         ]);
 
         $query = Candidate::with(['category', 'subCategory', 'skills']);
@@ -36,7 +50,7 @@ class CandidateController extends Controller
         }
 
         // Filtrage par type de contrat
-        if ($request->has('contract_type')) {
+        if ($request->has('contract_type') && $request->contract_type !== 'TOUS') {
             $query->where('contract_type', $request->contract_type);
         }
 
@@ -67,10 +81,11 @@ class CandidateController extends Controller
             $request->file('cv_file')
         );
 
-        return response()->json([
-            'message' => 'Candidat créé avec succès.',
-            'data' => $candidate->load(['category', 'subCategory', 'skills', 'cvFiles'])
-        ], 201);
+        return $this->jsonResponse(
+            'Candidat créé avec succès.',
+            $candidate->load(['category', 'subCategory', 'skills', 'cvFiles']),
+            201
+        );
     }
 
     public function show(Candidate $candidate)
@@ -113,10 +128,10 @@ class CandidateController extends Controller
             $request->file('cv_file')
         );
 
-        return response()->json([
-            'message' => 'Candidat mis à jour avec succès.',
-            'data' => $candidate->load(['category', 'subCategory', 'skills', 'cvFiles'])
-        ]);
+        return $this->jsonResponse(
+            'Candidat mis à jour avec succès.',
+            $candidate->load(['category', 'subCategory', 'skills', 'cvFiles'])
+        );
     }
 
     public function addCv(Request $request, Candidate $candidate)
@@ -127,43 +142,45 @@ class CandidateController extends Controller
 
         $this->candidateService->storeCv($candidate, $request->file('cv_file'));
 
-        return response()->json([
-            'message' => 'CV ajouté avec succès.',
-            'data' => $candidate->load('cvFiles')
-        ]);
+        return $this->jsonResponse(
+            'CV ajouté avec succès.',
+            $candidate->load('cvFiles')
+        );
     }
 
     public function updateStatus(Request $request, Candidate $candidate)
     {
         $request->validate([
-            'status' => 'required|in:ACTIVE,HIRED,ARCHIVED',
+            'status' => 'required|in:PENDING,ACTIVE,HIRED,ARCHIVED',
         ]);
 
         $candidate->update(['status' => $request->status]);
 
-        return response()->json([
-            'message' => 'Statut mis à jour avec succès.',
-            'data' => $candidate
-        ]);
+        return $this->jsonResponse(
+            'Statut mis à jour avec succès.',
+            $candidate
+        );
     }
 
     public function stats()
     {
-        return response()->json([
-            'total' => Candidate::count(),
-            'active' => Candidate::where('status', 'ACTIVE')->count(),
-            'hired' => Candidate::where('status', 'HIRED')->count(),
-            'archived' => Candidate::where('status', 'ARCHIVED')->count(),
-            'pending' => Candidate::where('status', 'PENDING')->count(), // assuming PENDING might exist or be used
-        ]);
+        $stats = Candidate::selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status = "ACTIVE" THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN status = "HIRED" THEN 1 ELSE 0 END) as hired,
+                SUM(CASE WHEN status = "ARCHIVED" THEN 1 ELSE 0 END) as archived,
+                SUM(CASE WHEN status = "PENDING" THEN 1 ELSE 0 END) as pending
+            ')
+            ->first()
+            ->toArray();
+
+        return response()->json($stats);
     }
 
     public function destroy(Candidate $candidate)
     {
         $this->candidateService->deleteCandidate($candidate);
 
-        return response()->json([
-            'message' => 'Candidat supprimé avec succès.'
-        ]);
+        return $this->jsonResponse('Candidat supprimé avec succès.');
     }
 }

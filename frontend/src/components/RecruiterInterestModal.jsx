@@ -45,8 +45,6 @@ const RecruiterInterestModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => 
             setTimeout(() => {
                 onClose();
                 setIsSuccess(false);
-                // On ne vide plus le formulaire si on veut qu'il reste pré-rempli (ou on le laisse tel quel)
-                // Mais pour cette session on peut le laisser ainsi
             }, 2000);
         }
     };

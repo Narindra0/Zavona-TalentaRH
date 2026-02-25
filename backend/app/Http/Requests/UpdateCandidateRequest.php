@@ -29,7 +29,7 @@ class UpdateCandidateRequest extends FormRequest
             'position_searched' => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'contract_type' => 'nullable|string|in:CDI,CDD,Stage',
+            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,TOUS',
             'experience_level' => 'required|in:débutant,junior,intermédiaire,senior,expert',
             'description' => 'nullable|string',
             'status' => 'nullable|in:PENDING,ACTIVE,HIRED,ARCHIVED',
