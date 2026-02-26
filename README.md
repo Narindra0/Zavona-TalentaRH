@@ -33,85 +33,6 @@
   - Gestion des offres d'emploi
   - Système de cookies consentement
 
-## 🚀 Installation et Démarrage Rapide
-
-### Prérequis
-- PHP 8.2+
-- Node.js 18+
-- PostgreSQL 12+
-- Composer
-- npm/yarn
-
-### 1. Clonage du projet
-```bash
-git clone [repository-url]
-cd Zavona-TalentaRH
-```
-
-### 2. Installation des dépendances
-```bash
-# Installation des dépendances principales
-npm install
-
-# Installation backend
-cd backend
-composer install
-npm install
-
-# Installation frontend
-cd ../frontend
-npm install
-```
-
-### 3. Configuration de l'environnement
-```bash
-# Copier le fichier d'environnement
-cd backend
-cp .env.example .env
-
-# Générer la clé Laravel
-php artisan key:generate
-
-# Configurer la base de données dans .env :
-# DB_CONNECTION=pgsql
-# DB_HOST=127.0.0.1
-# DB_PORT=5432
-# DB_DATABASE=zavona_talenta_rh
-# DB_USERNAME=postgres
-# DB_PASSWORD=votre_mot_de_passe
-```
-
-### 4. Migration de la base de données
-```bash
-php artisan migrate
-```
-
-### 5. Démarrage de l'application
-
-#### Option 1 : Développement séparé
-```bash
-# Terminal 1 - Backend
-cd backend
-php artisan serve
-
-# Terminal 2 - Frontend
-cd frontend
-npm run dev
-```
-
-#### Option 2 : Développement simultané (recommandé)
-```bash
-# Depuis la racine du projet
-npm run front  # Frontend (http://localhost:5173)
-npm run back   # Backend (http://localhost:8000)
-```
-
-#### Option 3 : Développement complet avec Laravel
-```bash
-cd backend
-npm run dev  # Lance serveur + queue + logs + vite
-```
-
 ## 📁 Structure du Projet
 
 ```
@@ -266,12 +187,6 @@ Le projet utilise une migration unique : `2026_02_25_000001_consolidated_databas
 
 ## 🛠️ Développement
 
-### Scripts disponibles
-```bash
-# Racine du projet
-npm run front    # Démarrer frontend
-npm run back     # Démarrer backend
-
 # Backend
 composer setup              # Installation complète
 npm run dev                # Développement complet
@@ -358,7 +273,3 @@ Le projet peut être containerisé avec Docker pour un déploiement simplifié.
 ## 👤 Auteur
 
 Développé par NARINDRA RANJALAHY
-
-## 📄 Licence
-
-MIT License - Voir fichier LICENSE pour plus de détails

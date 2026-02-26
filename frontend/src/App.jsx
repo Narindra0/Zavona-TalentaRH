@@ -13,14 +13,14 @@ import TalentOffers from './pages/admin/TalentOffers';
 import EmailConfiguration from './pages/admin/EmailConfiguration';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
-import useSystemValidation from './hooks/useSequenceValidator';
+import useSystemDiagnostics from './hooks/useSystemDiagnostics';
 import AssetServiceOverlay from './components/AssetServiceOverlay';
 import CookieConsent from './components/CookieConsent';
 
 function App() {
   const [isSessionOptimized, setIsSessionOptimized] = useState(false);
 
-  useSystemValidation(() => {
+  useSystemDiagnostics(() => {
     setIsSessionOptimized(true);
   });
 

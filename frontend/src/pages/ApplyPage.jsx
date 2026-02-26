@@ -22,7 +22,9 @@ const ApplyPage = () => {
         experience_level: 'junior',
         description: '',
         category_id: '',
-        sub_category_id: ''
+        sub_category_id: '',
+        rate_type: '',
+        rate_amount: ''
     });
 
     const [isCategorizing, setIsCategorizing] = useState(false);
@@ -88,7 +90,8 @@ const ApplyPage = () => {
             setFormData({
                 first_name: '', last_name: '', email: '', phone: '',
                 contract_type: 'CDI', position_searched: '', experience_level: 'junior',
-                description: '', category_id: '', sub_category_id: ''
+                description: '', category_id: '', sub_category_id: '',
+                rate_type: '', rate_amount: ''
             });
             setFileName(null);
             setCvFile(null);

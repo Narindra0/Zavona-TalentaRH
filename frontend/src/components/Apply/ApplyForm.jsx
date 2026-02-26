@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mail, Phone, Briefcase, CheckCircle, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, CheckCircle, Loader2, DollarSign } from 'lucide-react';
 
 const ApplyForm = ({
     formData,
@@ -62,7 +62,6 @@ const ApplyForm = ({
                             onChange={handleInputChange}
                             className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                             placeholder="jean.rakoto@example.com"
-                            required
                         />
                     </div>
                 </div>
@@ -78,7 +77,6 @@ const ApplyForm = ({
                             onChange={handleInputChange}
                             className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                             placeholder="034 00 000 00"
-                            required
                         />
                     </div>
                 </div>
@@ -95,6 +93,7 @@ const ApplyForm = ({
                             <option value="CDI">CDI</option>
                             <option value="CDD">CDD</option>
                             <option value="Stage">Stage</option>
+                            <option value="Prestataire">Prestataire</option>
                         </select>
                     </div>
                     <div>
@@ -113,6 +112,48 @@ const ApplyForm = ({
                         </select>
                     </div>
                 </div>
+
+                {/* Section tarification pour les prestataires */}
+                {formData.contract_type === 'Prestataire' && (
+                    <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <DollarSign className="text-orange-500" /> Tarification
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Type de tarif</label>
+                                <select
+                                    name="rate_type"
+                                    value={formData.rate_type || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-orange-500 outline-none transition-all appearance-none"
+                                >
+                                    <option value="">Sélectionner...</option>
+                                    <option value="daily">Tarif journalier</option>
+                                    <option value="weekly">Tarif hebdomadaire</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Montant (Ar)</label>
+                                <input
+                                    type="number"
+                                    name="rate_amount"
+                                    value={formData.rate_amount || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                                    placeholder="Ex: 50000"
+                                    min="0"
+                                    step="1000"
+                                />
+                            </div>
+                        </div>
+                        {formData.rate_type && formData.rate_amount && (
+                            <p className="mt-3 text-sm text-orange-600 font-medium">
+                                Tarif : {formData.rate_type === 'daily' ? 'Journalier' : 'Hebdomadaire'} - {new Intl.NumberFormat('fr-MG').format(parseFloat(formData.rate_amount) || 0)} Ar
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <div>
                     <label className="block text-sm font-bold text-slate-700 mb-2">Poste recherché</label>

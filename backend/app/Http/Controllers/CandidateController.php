@@ -39,7 +39,7 @@ class CandidateController extends Controller
         $request->validate([
             'status' => 'nullable|in:PENDING,ACTIVE,HIRED,ARCHIVED',
             'search' => 'nullable|string|max:255',
-            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,TOUS',
+            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,Prestataire,TOUS',
         ]);
 
         $query = Candidate::with(['category', 'subCategory', 'skills']);

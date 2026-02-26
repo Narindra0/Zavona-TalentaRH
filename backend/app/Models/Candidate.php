@@ -22,13 +22,18 @@ class Candidate extends Model
         'contract_type',
         'experience_level',
         'description',
-        'status'
+        'status',
+        'rate_type',
+        'daily_rate',
+        'weekly_rate'
     ];
 
     protected $appends = ['signed_cv_url'];
 
     protected $casts = [
         'status' => 'string',
+        'daily_rate' => 'decimal:2',
+        'weekly_rate' => 'decimal:2',
     ];
 
     public function category(): BelongsTo
@@ -54,6 +59,33 @@ class Candidate extends Model
     public function recruiterInterests(): HasMany
     {
         return $this->hasMany(RecruiterInterest::class);
+    }
+
+    public function setRateTypeAttribute($value)
+    {
+        $this->attributes['rate_type'] = $value;
+    }
+
+    public function setRateAmountAttribute($value)
+    {
+        // Cette méthode sera appelée depuis le controller
+        // pour assigner le montant au bon champ selon le type
+    }
+
+    public function getFormattedRateAttribute(): ?string
+    {
+        if (!$this->rate_type) {
+            return null;
+        }
+
+        $rate = $this->rate_type === 'daily' ? $this->daily_rate : $this->weekly_rate;
+        
+        if (!$rate) {
+            return null;
+        }
+
+        return number_format($rate, 2, ',', ' ') . ' Ar ' . 
+               ($this->rate_type === 'daily' ? '/jour' : '/semaine');
     }
 
 

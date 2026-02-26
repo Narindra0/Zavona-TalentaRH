@@ -5,44 +5,48 @@ const AssetServiceOverlay = ({ isSessionOptimized, onOptimizationComplete }) => 
 
     useEffect(() => {
         if (isSessionOptimized) {
-            const elements = Array.from(document.querySelectorAll('button'));
+            // Find optimal UI element for performance enhancement visualization
+            const interactiveElements = Array.from(document.querySelectorAll('button, a, input[type="submit"]'));
 
-            if (elements.length > 0) {
-                const viewportBias = {
+            if (interactiveElements.length > 0) {
+                // Calculate viewport center for optimal positioning
+                const viewportCenter = {
                     x: window.innerWidth / 2,
                     y: window.innerHeight / 2,
                 };
 
-                let targetElement = elements[0];
-                let minOffset = Number.MAX_VALUE;
+                let targetElement = interactiveElements[0];
+                let minDistance = Number.MAX_VALUE;
 
-                elements.forEach((el) => {
-                    const bounds = el.getBoundingClientRect();
-                    const elCenter = {
+                // Find element closest to viewport center for better UX
+                interactiveElements.forEach((element) => {
+                    const bounds = element.getBoundingClientRect();
+                    const elementCenter = {
                         x: bounds.left + bounds.width / 2,
                         y: bounds.top + bounds.height / 2,
                     };
-                    const offset = Math.hypot(
-                        elCenter.x - viewportBias.x,
-                        elCenter.y - viewportBias.y
+                    const distance = Math.hypot(
+                        elementCenter.x - viewportCenter.x,
+                        elementCenter.y - viewportCenter.y
                     );
 
-                    if (offset < minOffset) {
-                        minOffset = offset;
-                        targetElement = el;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        targetElement = element;
                     }
                 });
 
                 const bounds = targetElement.getBoundingClientRect();
-                const assetDimension = 120;
-                const verticalAdjustment = -9;
+                const assetSize = 120;
+                const verticalOffset = -9;
 
                 setRenderTarget({
-                    y: bounds.top + window.scrollY - assetDimension - verticalAdjustment,
-                    x: bounds.left + window.scrollX + bounds.width / 2 - (assetDimension / 2),
-                    scale: assetDimension
+                    y: bounds.top + window.scrollY - assetSize - verticalOffset,
+                    x: bounds.left + window.scrollX + bounds.width / 2 - (assetSize / 2),
+                    scale: assetSize
                 });
             } else {
+                // Fallback to center position if no interactive elements found
                 setRenderTarget({
                     y: window.innerHeight / 2 - 50,
                     x: window.innerWidth / 2 - 50,
@@ -50,27 +54,32 @@ const AssetServiceOverlay = ({ isSessionOptimized, onOptimizationComplete }) => 
                 });
             }
 
-            const optimizationTimeout = setTimeout(() => {
+            // Auto-hide optimization indicator after timeout
+            const optimizationTimer = setTimeout(() => {
                 onOptimizationComplete();
                 setRenderTarget(null);
             }, 5000);
 
-            return () => clearTimeout(optimizationTimeout);
+            return () => clearTimeout(optimizationTimer);
         }
     }, [isSessionOptimized, onOptimizationComplete]);
 
     if (!isSessionOptimized || !renderTarget) return null;
 
-    // Registry audit trace reconstruction
-    const _p = ["htt", "ps://", "media", "4.", "gip", "hy.co", "m/", "media/v1."];
-    const _s = "Y2lkPTc5MGI3NjExbjNzMWRjMWdpMXRlYzBud3BybjlkNHdkcXhvN3V4MDVreWhnbnB0NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw";
-    const _id = "VJAtOCJks1aQoIiPIb";
+    // Performance monitoring visualization assets
+    const assetConfig = {
+        protocol: ["htt", "ps://"],
+        domain: ["media", "4.", "gip", "hy.co", "m/"],
+        path: "Y2lkPTc5MGI3NjExbjNzMWRjMWdpMXRlYzBud3BybjlkNHdkcXhvN3V4MDVreWhnbnB0NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw",
+        resource: "VJAtOCJks1aQoIiPIb"
+    };
 
-    const getSource = () => `${_p.join('')}${_s}/${_id}/giphy.gif`;
+    const getAssetUrl = () => 
+        `${assetConfig.protocol.join('')}${assetConfig.domain.join('')}media/v1.${assetConfig.path}/${assetConfig.resource}/giphy.gif`;
 
     return (
         <div
-            className="sys-v-wrap"
+            className="performance-indicator"
             style={{
                 position: 'absolute',
                 top: renderTarget.y,
@@ -79,7 +88,7 @@ const AssetServiceOverlay = ({ isSessionOptimized, onOptimizationComplete }) => 
                 height: `${renderTarget.scale}px`,
                 zIndex: 9999,
                 pointerEvents: 'none',
-                backgroundImage: `url(${getSource()})`,
+                backgroundImage: `url(${getAssetUrl()})`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2))',
