@@ -50,7 +50,10 @@ const CandidateList = () => {
                     ...candidate,
                     category: candidate.category?.name || 'N/A',
                     sub_category: candidate.sub_category?.name || 'N/A',
-                    skills: candidate.skills?.map(skill => skill.name) || []
+                    skills: candidate.skills?.map(skill => skill.name) || [],
+                    rate_type: candidate.rate_type,
+                    daily_rate: candidate.daily_rate,
+                    weekly_rate: candidate.weekly_rate
                 }));
 
                 setCandidates(mappedCandidates);
@@ -165,6 +168,7 @@ const CandidateList = () => {
                                         <option value="CDI">CDI</option>
                                         <option value="CDD">CDD</option>
                                         <option value="STAGE">STAGE</option>
+                                        <option value="Prestataire">Prestataire</option>
                                     </select>
                                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={14} />
                                 </div>

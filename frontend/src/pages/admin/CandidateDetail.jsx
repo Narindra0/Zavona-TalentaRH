@@ -62,7 +62,10 @@ const CandidateDetail = () => {
                     skills: data.skills?.map(s => s.name) || [],
                     skills_raw: data.skills || [], // Garder les objets pour l'édition
                     bio: data.description || "Aucune description disponible.",
-                    cv_url: data.signed_cv_url || (data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null)
+                    cv_url: data.signed_cv_url || (data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null),
+                    rate_type: data.rate_type,
+                    daily_rate: data.daily_rate,
+                    weekly_rate: data.weekly_rate
                 };
                 setTalent(mappedTalent);
                 setFormData({
@@ -76,7 +79,10 @@ const CandidateDetail = () => {
                     contract_type: data.contract_type || 'CDI',
                     experience_level: data.experience_level || 'junior',
                     description: data.description || '',
-                    status: data.status || 'PENDING'
+                    status: data.status || 'PENDING',
+                    rate_type: data.rate_type || '',
+                    daily_rate: data.daily_rate || '',
+                    weekly_rate: data.weekly_rate || ''
                 });
                 setSelectedSkills(data.skills?.map(s => ({ value: s.id, label: s.name })) || []);
                 setLoading(false);
@@ -152,7 +158,18 @@ const CandidateDetail = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Si on change le type de tarif, on réinitialise l'autre champ
+        if (name === 'rate_type') {
+            setFormData(prev => ({ 
+                ...prev, 
+                [name]: value,
+                daily_rate: value === 'weekly' ? '' : prev.daily_rate,
+                weekly_rate: value === 'daily' ? '' : prev.weekly_rate
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSave = async () => {
@@ -197,6 +214,12 @@ const CandidateDetail = () => {
                 skills: skillIds
             };
 
+            // Ne pas inclure les champs de tarification dans la sauvegarde
+            // (ils ne sont plus modifiables par l'admin)
+            delete updateData.rate_type;
+            delete updateData.daily_rate;
+            delete updateData.weekly_rate;
+
             await api.put(`/candidates/${id}`, updateData);
 
             // Refresh data
@@ -210,7 +233,10 @@ const CandidateDetail = () => {
                 sub_category_id: data.sub_category_id,
                 skills: data.skills?.map(s => s.name) || [],
                 bio: data.description || "Aucune description disponible.",
-                cv_url: data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null
+                cv_url: data.cv_files?.[0]?.file_path ? `/storage/${data.cv_files[0].file_path}` : null,
+                rate_type: data.rate_type,
+                daily_rate: data.daily_rate,
+                weekly_rate: data.weekly_rate
             };
             setTalent(mappedTalent);
             setIsEditing(false);
@@ -225,7 +251,14 @@ const CandidateDetail = () => {
             setSelectedSkills(data.skills?.map(s => ({ value: s.id, label: s.name })) || []);
         } catch (err) {
             console.error("Error saving candidate:", err);
-            alert("Erreur lors de la sauvegarde des modifications.");
+            
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                const errors = err.response.data.errors;
+                console.error("Validation errors:", errors);
+                alert("Erreur de validation:\n" + Object.values(errors).flat().join('\n'));
+            } else {
+                alert("Erreur lors de la sauvegarde des modifications.");
+            }
         } finally {
             setSaving(false);
         }
@@ -244,7 +277,10 @@ const CandidateDetail = () => {
             contract_type: talent.contract_type || 'CDI',
             experience_level: talent.experience_level || 'junior',
             description: talent.description || '',
-            status: talent.status || 'PENDING'
+            status: talent.status || 'PENDING',
+            rate_type: talent.rate_type || '',
+            daily_rate: talent.daily_rate || '',
+            weekly_rate: talent.weekly_rate || ''
         });
         setSelectedSkills(talent.skills_raw?.map(s => ({ value: s.id, label: s.name })) || []);
         setIsEditing(false);
@@ -566,6 +602,7 @@ const CandidateDetail = () => {
                                                     <option value="CDI">CDI</option>
                                                     <option value="CDD">CDD</option>
                                                     <option value="Stage">Stage</option>
+                                                    <option value="Prestataire">Prestataire</option>
                                                 </select>
                                                 <select
                                                     name="experience_level"
@@ -579,6 +616,40 @@ const CandidateDetail = () => {
                                                     <option value="senior">Senior</option>
                                                     <option value="expert">Expert</option>
                                                 </select>
+
+                                                {/* Section tarification pour les prestataires - Lecture seule pour l'admin */}
+                                                {talent.contract_type === 'Prestataire' && (
+                                                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200 space-y-3">
+                                                        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                                            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                                            Tarification
+                                                            <span className="text-xs text-slate-500 font-normal">(Non modifiable)</span>
+                                                        </h4>
+                                                        <div className="bg-white rounded-lg p-3 border border-orange-100">
+                                                            <p className="text-xs text-slate-500 mb-2">Type de tarif</p>
+                                                            <p className="text-sm font-semibold text-slate-700">
+                                                                {talent.rate_type === 'daily' ? 'Journalier' : talent.rate_type === 'weekly' ? 'Hebdomadaire' : 'Non défini'}
+                                                            </p>
+                                                        </div>
+                                                        {talent.rate_type === 'daily' && talent.daily_rate && (
+                                                            <div className="bg-white rounded-lg p-3 border border-orange-100">
+                                                                <p className="text-xs text-slate-500 mb-2">Montant journalier</p>
+                                                                <p className="text-lg font-bold text-orange-600">{parseFloat(talent.daily_rate).toLocaleString('fr-MG')} Ar</p>
+                                                            </div>
+                                                        )}
+                                                        {talent.rate_type === 'weekly' && talent.weekly_rate && (
+                                                            <div className="bg-white rounded-lg p-3 border border-orange-100">
+                                                                <p className="text-xs text-slate-500 mb-2">Montant hebdomadaire</p>
+                                                                <p className="text-lg font-bold text-orange-600">{parseFloat(talent.weekly_rate).toLocaleString('fr-MG')} Ar</p>
+                                                            </div>
+                                                        )}
+                                                        {(!talent.rate_type || (!talent.daily_rate && !talent.weekly_rate)) && (
+                                                            <div className="bg-white rounded-lg p-3 border border-orange-100">
+                                                                <p className="text-sm text-slate-500 italic">💰 Tarif non renseigné</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="space-y-3">
@@ -596,6 +667,31 @@ const CandidateDetail = () => {
                                                     <p className="text-xs font-bold text-slate-400 uppercase mb-1">Expérience</p>
                                                     <p className="font-semibold text-slate-700 capitalize">{talent.experience_level}</p>
                                                 </div>
+                                                {talent.contract_type === 'Prestataire' && (
+                                                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+                                                        <p className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2">
+                                                            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                                            Tarification
+                                                        </p>
+                                                        {talent.rate_type === 'daily' && talent.daily_rate && (
+                                                            <div className="flex items-center justify-between bg-white rounded-lg p-3 border border-orange-100">
+                                                                <span className="text-sm font-semibold text-slate-700">Taux journalier</span>
+                                                                <span className="text-lg font-bold text-orange-600">{parseFloat(talent.daily_rate).toLocaleString('fr-MG')} Ar</span>
+                                                            </div>
+                                                        )}
+                                                        {talent.rate_type === 'weekly' && talent.weekly_rate && (
+                                                            <div className="flex items-center justify-between bg-white rounded-lg p-3 border border-orange-100">
+                                                                <span className="text-sm font-semibold text-slate-700">Taux hebdomadaire</span>
+                                                                <span className="text-lg font-bold text-orange-600">{parseFloat(talent.weekly_rate).toLocaleString('fr-MG')} Ar</span>
+                                                            </div>
+                                                        )}
+                                                        {(!talent.rate_type || (!talent.daily_rate && !talent.weekly_rate)) && (
+                                                            <p className="text-sm text-slate-500 italic bg-white rounded-lg p-3 border border-orange-100">
+                                                                💰 Tarif non renseigné
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>

@@ -101,21 +101,14 @@ const Dashboard = () => {
     const stats = [
         {
             label: 'Total Candidats',
-            value: statsData.total?.toString() || '0',
+            value: statsData.total?.toLocaleString('fr-MG') || '0',
             icon: <Users size={16} />,
             color: 'text-blue-600',
             bg: 'bg-blue-50'
         },
         {
-            label: 'Actifs',
-            value: statsData.active?.toString() || '0',
-            icon: <CheckCircle2 size={16} />,
-            color: 'text-emerald-600',
-            bg: 'bg-emerald-50'
-        },
-        {
             label: 'En Attente',
-            value: statsData.pending?.toString() || '0',
+            value: statsData.pending?.toLocaleString('fr-MG') || '0',
             icon: <Clock size={16} />,
             color: 'text-amber-600',
             bg: 'bg-amber-50'
@@ -194,7 +187,7 @@ const Dashboard = () => {
             </div>
 
             {/* KPI Cards (Smaller) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 transition-all hover:shadow-md">
                         <div className={`p-2 rounded-lg ${stat.bg} ${stat.color}`}>

@@ -12,7 +12,8 @@ export const initialSiteData = {
             { id: 'all', title: 'Tous nos Talents', description: "Explorez l'intégralité de notre vivier de talents qualifiés et trouvez la perle rare.", type: 'Tous', icon: 'Users' },
             { id: 'cdi', title: 'Profils CDI', description: 'Des experts engagés en quête de stabilité pour un partenariat durable et fructueux.', type: 'CDI', icon: 'Briefcase' },
             { id: 'cdd', title: 'Profils CDD', description: 'Des talents hautement qualifiés disponibles pour des missions spécifiques et flexibles.', type: 'CDD', icon: 'Clock' },
-            { id: 'stage', title: 'Profils Stagiaires', description: 'Une nouvelle génération de talents prêts à apprendre et à innover au sein de vos équipes.', type: 'STAGE', icon: 'GraduationCap' }
+            { id: 'stage', title: 'Profils Stagiaires', description: 'Une nouvelle génération de talents prêts à apprendre et à innover au sein de vos équipes.', type: 'STAGE', icon: 'GraduationCap' },
+            { id: 'prestataire', title: 'Profils Prestataires', description: 'Des experts indépendants pour des missions spécifiques et du conseil stratégique.', type: 'Prestataire', icon: 'DollarSign' }
         ]
     },
     about: {

@@ -37,6 +37,9 @@ Route::post('/parse-cv', [\App\Http\Controllers\CvParserController::class, 'pars
 Route::post('/candidates/{candidate}/interest', [RecruiterInterestController::class, 'store']);
 Route::post('/candidates/{candidate}/uninterest', [RecruiterInterestController::class, 'destroy']); // Using POST to allow body with email
 
+// Admin stats (public pour le dashboard admin)
+Route::get('/admin/candidates/stats', [CandidateController::class, 'stats']);
+
 // Protected API routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (\Illuminate\Http\Request $request) {
@@ -58,7 +61,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy']);
     Route::post('/candidates/{candidate}/add-cv', [CandidateController::class, 'addCv']);
     Route::patch('/candidates/{candidate}/update-status', [CandidateController::class, 'updateStatus']);
-    Route::get('/admin/candidates/stats', [CandidateController::class, 'stats']);
 
     // Skills
     Route::post('/skills', [SkillController::class, 'store']);

@@ -1,11 +1,12 @@
-import { Briefcase, GraduationCap } from 'lucide-react';
+import { Briefcase, GraduationCap, DollarSign } from 'lucide-react';
 
 const CandidateCard = ({ candidate, onViewProfile }) => {
     // Mapping des couleurs pour les contrats
     const contractStyles = {
         'CDI': 'border-emerald-100 text-emerald-600 bg-emerald-50/50',
         'CDD': 'border-blue-100 text-blue-600 bg-blue-50/50',
-        'STAGE': 'border-purple-100 text-purple-600 bg-purple-50/50'
+        'STAGE': 'border-purple-100 text-purple-600 bg-purple-50/50',
+        'Prestataire': 'border-orange-100 text-orange-600 bg-orange-50/50'
     };
 
     const style = contractStyles[candidate.contract_type] || 'border-slate-100 text-slate-600 bg-slate-50/50';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Facebook, Globe, LogOut, User, Users, ChevronRight, Tags, BriefcaseBusiness, Mail } from 'lucide-react';
+import { LayoutDashboard, Facebook, Globe, LogOut, User, Users, ChevronRight, Tags, BriefcaseBusiness, Mail, X, AlertTriangle } from 'lucide-react';
 import logoImg from '../assets/Logo-ZTRH.png';
 import api from '../api/axios';
 
@@ -9,6 +9,7 @@ const AdminLayout = ({ children }) => {
     const navigate = useNavigate();
     const [pendingCount, setPendingCount] = React.useState(0);
     const [user, setUser] = React.useState(null);
+    const [showLogoutModal, setShowLogoutModal] = React.useState(false);
 
     React.useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -62,8 +63,18 @@ const AdminLayout = ({ children }) => {
     ];
 
     const handleLogout = () => {
+        setShowLogoutModal(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('user');
         navigate('/login');
+        setShowLogoutModal(false);
+    };
+
+    const cancelLogout = () => {
+        setShowLogoutModal(false);
     };
 
     const activeItem = menuItems.find(i => i.path === location.pathname);
@@ -151,6 +162,59 @@ const AdminLayout = ({ children }) => {
                     {children}
                 </main>
             </div>
+
+            {/* Modal de confirmation de déconnexion */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Overlay */}
+                    <div 
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={cancelLogout}
+                    ></div>
+
+                    {/* Modal */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+                        {/* Icône d'avertissement */}
+                        <div className="flex items-center justify-center w-16 h-16 bg-rose-50 rounded-full mx-auto mb-4">
+                            <AlertTriangle className="text-rose-600" size={32} />
+                        </div>
+
+                        {/* Titre et message */}
+                        <div className="text-center mb-6">
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">
+                                Confirmer la déconnexion
+                            </h3>
+                            <p className="text-slate-600 text-sm">
+                                Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à l'administration.
+                            </p>
+                        </div>
+
+                        {/* Boutons d'action */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={cancelLogout}
+                                className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-colors"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                className="flex-1 px-4 py-2.5 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-700 transition-colors"
+                            >
+                                Se déconnecter
+                            </button>
+                        </div>
+
+                        {/* Bouton de fermeture (optionnel) */}
+                        <button
+                            onClick={cancelLogout}
+                            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

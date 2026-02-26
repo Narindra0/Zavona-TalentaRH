@@ -15,7 +15,8 @@ import {
     Loader2,
     X,
     User,
-    Star
+    Star,
+    DollarSign
 } from 'lucide-react';
 import api from '../api/axios';
 import logoZTRH from '../assets/Logo-ZTRH.png';
@@ -69,7 +70,10 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
                     disponibility: "Immédiate",
                     contract_type: data.contract_type || "CDI",
                     languages: data.languages || [],
-                    consultant_note: data.consultant_note && data.consultant_note.trim() !== "" ? data.consultant_note : null
+                    consultant_note: data.consultant_note && data.consultant_note.trim() !== "" ? data.consultant_note : null,
+                    rate_type: data.rate_type,
+                    daily_rate: data.daily_rate,
+                    weekly_rate: data.weekly_rate
                 };
                 setTalent(mappedTalent);
                 setError(null);
@@ -133,7 +137,8 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
     const contractStyles = {
         'CDI': 'bg-emerald-50 text-emerald-700 border-emerald-100',
         'CDD': 'bg-blue-50 text-blue-700 border-blue-100',
-        'STAGE': 'bg-purple-50 text-purple-700 border-purple-100'
+        'STAGE': 'bg-purple-50 text-purple-700 border-purple-100',
+        'Prestataire': 'bg-orange-50 text-orange-700 border-orange-100'
     };
     const style = contractStyles[talent?.contract_type] || 'bg-slate-50 text-slate-700 border-slate-100';
 
@@ -193,8 +198,8 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
                     <div className="flex-1 overflow-y-auto">
                         {loading ? (
                             <div className="flex items-center justify-center py-20 sm:py-32">
-                                <Loader2 className="animate-spin text-orange-500" size={36} className="sm:hidden" />
-                                <Loader2 className="animate-spin text-orange-500" size={48} className="hidden sm:block" />
+                                <Loader2 className="animate-spin text-orange-500 sm:hidden" size={36} />
+                                <Loader2 className="animate-spin text-orange-500 hidden sm:block" size={48} />
                             </div>
                         ) : error || !talent ? (
                             <div className="flex flex-col items-center justify-center py-20 sm:py-32 px-4 sm:px-6">
@@ -217,8 +222,8 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
                                             {/* Avatar et infos principales */}
                                             <div className="flex flex-col items-center text-center">
                                                 <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-500/25 mb-4 sm:mb-6">
-                                                    <User className="text-white" size={32} className="sm:hidden" />
-                                                    <User className="text-white" size={48} className="hidden sm:block" />
+                                                    <User className="text-white sm:hidden" size={32} />
+                                                    <User className="text-white hidden sm:block" size={48} />
                                                 </div>
                                                 <span className={`inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border mb-3 sm:mb-4 ${style}`}>
                                                     {talent.contract_type}
@@ -267,6 +272,43 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
                                             </section>
                                         )}
 
+                                        {/* Section tarification pour les prestataires */}
+                                        {talent.contract_type === 'Prestataire' && (
+                                            <section className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 sm:p-6 border border-orange-200">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <DollarSign size={16} className="text-orange-500" />
+                                                    <h3 className="text-base sm:text-lg font-bold text-slate-900">Tarification</h3>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {talent.rate_type === 'daily' && talent.daily_rate && (
+                                                        <div className="bg-white rounded-lg p-3 sm:p-4 border border-orange-100">
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-sm font-semibold text-slate-600">Journalier</span>
+                                                                <span className="text-base sm:text-lg font-bold text-orange-600">
+                                                                    {parseFloat(talent.daily_rate).toLocaleString('fr-MG')} Ar
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {talent.rate_type === 'weekly' && talent.weekly_rate && (
+                                                        <div className="bg-white rounded-lg p-3 sm:p-4 border border-orange-100">
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-sm font-semibold text-slate-600">Hebdomadaire</span>
+                                                                <span className="text-base sm:text-lg font-bold text-orange-600">
+                                                                    {parseFloat(talent.weekly_rate).toLocaleString('fr-MG')} Ar
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {(!talent.rate_type || (!talent.daily_rate && !talent.weekly_rate)) && (
+                                                        <div className="bg-white rounded-lg p-3 sm:p-4 border border-orange-100">
+                                                            <p className="text-sm text-slate-500 italic">💰 Tarif non renseigné</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </section>
+                                        )}
+
                                         {/* Compétences et Langues sur deux colonnes */}
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                                             {/* Expertises Techniques */}
@@ -310,8 +352,8 @@ const CandidateProfileModal = ({ isOpen, onClose, candidateId }) => {
                                         {talent.consultant_note && (
                                             <section className="bg-gradient-to-br from-slate-900 to-slate-800 p-4 sm:p-8 rounded-xl sm:rounded-2xl shadow-xl">
                                                 <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                                                    <Award className="text-orange-400" size={16} className="sm:hidden" />
-                                                    <Award className="text-orange-400" size={20} className="hidden sm:block" />
+                                                    <Award className="text-orange-400 sm:hidden" size={16} />
+                                                    <Award className="text-orange-400 hidden sm:block" size={20} />
                                                     <h3 className="text-base sm:text-lg font-bold text-white">Note du consultant</h3>
                                                 </div>
                                                 <p className="text-slate-300 leading-relaxed mb-4 sm:mb-6 italic text-sm sm:text-base">

@@ -43,6 +43,9 @@ class CandidateResource extends JsonResource
             'cv_files' => $this->whenLoaded('cvFiles'),
             'recruiter_interests' => $isAdmin ? $this->whenLoaded('recruiterInterests') : [],
             'signed_cv_url' => $this->signed_cv_url,
+            'rate_type' => $this->rate_type,
+            'daily_rate' => $this->daily_rate,
+            'weekly_rate' => $this->weekly_rate,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

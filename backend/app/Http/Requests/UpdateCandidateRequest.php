@@ -29,13 +29,16 @@ class UpdateCandidateRequest extends FormRequest
             'position_searched' => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,TOUS',
+            'contract_type' => 'nullable|string|in:CDI,CDD,STAGE,Prestataire,TOUS',
             'experience_level' => 'required|in:débutant,junior,intermédiaire,senior,expert',
             'description' => 'nullable|string',
             'status' => 'nullable|in:PENDING,ACTIVE,HIRED,ARCHIVED',
             'skills' => 'array',
             'skills.*' => 'exists:skills,id',
             'cv_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'rate_type' => 'nullable|in:daily,weekly|required_if:contract_type,Prestataire',
+            'daily_rate' => 'nullable|numeric|min:0|required_if:rate_type,daily',
+            'weekly_rate' => 'nullable|numeric|min:0|required_if:rate_type,weekly',
         ];
     }
 }

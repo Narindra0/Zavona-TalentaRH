@@ -141,7 +141,7 @@ const ApplyForm = ({
                                     value={formData.rate_amount || ''}
                                     onChange={handleInputChange}
                                     className="w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                                    placeholder="Ex: 50000"
+                                    placeholder="Ex: 500000"
                                     min="0"
                                     step="1000"
                                 />

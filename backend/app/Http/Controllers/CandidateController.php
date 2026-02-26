@@ -9,6 +9,7 @@ use App\Services\CandidateService;
 use App\Http\Resources\CandidateResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CandidateController extends Controller
 {
@@ -164,15 +165,15 @@ class CandidateController extends Controller
 
     public function stats()
     {
-        $stats = Candidate::selectRaw('
+        $stats = DB::table('candidates')
+            ->selectRaw('
                 COUNT(*) as total,
-                SUM(CASE WHEN status = "ACTIVE" THEN 1 ELSE 0 END) as active,
-                SUM(CASE WHEN status = "HIRED" THEN 1 ELSE 0 END) as hired,
-                SUM(CASE WHEN status = "ARCHIVED" THEN 1 ELSE 0 END) as archived,
-                SUM(CASE WHEN status = "PENDING" THEN 1 ELSE 0 END) as pending
+                SUM(CASE WHEN status = \'active\' THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN status = \'hired\' THEN 1 ELSE 0 END) as hired,
+                SUM(CASE WHEN status = \'archived\' THEN 1 ELSE 0 END) as archived,
+                SUM(CASE WHEN status = \'pending\' THEN 1 ELSE 0 END) as pending
             ')
-            ->first()
-            ->toArray();
+            ->first();
 
         return response()->json($stats);
     }
