@@ -4,7 +4,7 @@ const Hero = () => {
     const [data, setData] = useState({
         title: "Trouvez les meilleurs talents",
         subtitle: "Connectez-vous avec l'excellence pour vos projets de demain.",
-        cta: "Explorer nos Talents",
+        cta: "Découvrir nos Services",
         image: "/hero-bg.png"
     });
 
@@ -23,7 +23,7 @@ const Hero = () => {
                 setData({
                     title: parsed?.hero?.title || "Trouvez les meilleurs talents",
                     subtitle: parsed?.hero?.subtitle || "Connectez-vous avec l'excellence pour vos projets de demain.",
-                    cta: parsed?.hero?.cta || "Explorer nos Talents",
+                    cta: parsed?.hero?.cta || "Découvrir nos Services",
                     image: finalImage
                 });
             } catch (e) {
@@ -31,6 +31,13 @@ const Hero = () => {
             }
         }
     }, []);
+
+    const handleScrollToServices = () => {
+        const servicesSection = document.getElementById('offers');
+        if (servicesSection) {
+            servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
 
     const titleParts = (data.title || "Trouvez les meilleurs talents").split(' ');
     const lastWord = titleParts.pop();
@@ -50,8 +57,22 @@ const Hero = () => {
                         <p className="text-base sm:text-lg md:text-xl text-white/90 font-medium mb-8">
                             {data.subtitle}
                         </p>
-                        <button className="px-6 py-3 sm:px-8 sm:py-4 bg-white text-orange-600 rounded-full font-bold hover:bg-orange-50 transition-standard shadow-lg active:scale-95">
-                            {data.cta}
+                        <button 
+                            onClick={handleScrollToServices}
+                            className="group relative px-8 py-4 bg-white text-orange-600 rounded-full font-bold text-lg hover:bg-orange-50 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center gap-2 transition-colors duration-300 group-hover:text-white">
+                                {data.cta}
+                                <svg 
+                                    className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                </svg>
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </button>
                     </div>
                 </div>
