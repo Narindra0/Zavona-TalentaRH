@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import PublicLayout from '../layouts/PublicLayout';
 import Hero from '../components/Hero';
@@ -34,7 +34,6 @@ const Home = () => {
     });
 
     useEffect(() => {
-        // Load custom site data
         const saved = localStorage.getItem('siteData');
         if (saved) {
             try {

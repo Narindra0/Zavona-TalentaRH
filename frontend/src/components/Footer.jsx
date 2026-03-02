@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../assets/Logo-ZTRH.png';
+import FacebookIcon from '../assets/icons/facebook.svg';
+import LinkedInIcon from '../assets/icons/linkedin.svg';
+import InstagramIcon from '../assets/icons/instagram.svg';
 
 const Footer = () => {
     const [footerData, setFooterData] = useState({
         description: "ZANOVA connecte les talents les plus qualifiés de Madagascar avec les entreprises visionnaires. Nous redéfinissons le recrutement par une approche humaine et innovante.",
         socials: [
-            { id: 'fb', platform: 'Facebook', url: 'https://facebook.com/zanovah', icon: 'fab fa-facebook-f' },
-            { id: 'li', platform: 'LinkedIn', url: 'https://linkedin.com/company/zanova', icon: 'fab fa-linkedin-in' },
-            { id: 'ig', platform: 'Instagram', url: 'https://instagram.com/zanova', icon: 'fab fa-instagram' }
+            { id: 'fb', platform: 'Facebook', url: 'https://facebook.com/zanovah', icon: FacebookIcon },
+            { id: 'li', platform: 'LinkedIn', url: 'https://linkedin.com/company/zanova', icon: LinkedInIcon },
+            { id: 'ig', platform: 'Instagram', url: 'https://instagram.com/zanova', icon: InstagramIcon }
         ]
     });
 
@@ -61,20 +64,18 @@ const Footer = () => {
                             <li><Link to="/talents?type=CDI" className="footer-link flex items-center">Recrutement CDI</Link></li>
                             <li><Link to="/talents?type=CDD" className="footer-link flex items-center">Missions CDD</Link></li>
                             <li><Link to="/talents?type=STAGE" className="footer-link flex items-center">Programmes Stagiaires</Link></li>
-                            <li><Link to="/#contact" className="footer-link flex items-center">Conseil RH</Link></li>
-                            <li><Link to="/#contact" className="footer-link flex items-center">Chasse de têtes</Link></li>
+                                                        <li><Link to="/#contact" className="footer-link flex items-center">Chasse de têtes</Link></li>
                         </ul>
                     </div>
 
                     {/* Colonne 3: Réseaux Sociaux */}
                     <div>
                         <h3 className="text-lg font-semibold mb-6 border-l-4 border-orange-500 pl-3 uppercase tracking-wider text-slate-200">Suivez-nous</h3>
-                        <ul className="space-y-4 text-slate-400 text-sm">
+                        <ul className="flex space-x-4 text-slate-400 text-sm">
                             {footerData.socials.map((social) => (
                                 <li key={social.id}>
-                                    <a href={social.url} target="_blank" rel="noopener noreferrer" className="footer-link flex items-center">
-                                        <i className={`${social.icon || 'fas fa-link'} w-5`}></i>
-                                        <span>{social.platform}</span>
+                                    <a href={social.url} target="_blank" rel="noopener noreferrer" className="footer-link flex items-center justify-center w-10 h-10 rounded-full bg-slate-800 hover:bg-orange-500 transition-all">
+                                        <img src={social.icon} alt={social.platform} className="w-5 h-5 text-white" />
                                     </a>
                                 </li>
                             ))}
@@ -108,9 +109,9 @@ const Footer = () => {
                 <div className="border-t border-slate-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-xs text-slate-500">
                     <p>© {new Date().getFullYear()} ZANOVA Talenta RH. Tous droits réservés. Antananarivo, Madagascar.</p>
                     <div className="flex space-x-6">
-                        <Link to="/#mentions" className="hover:text-white transition-colors">Mentions Légales</Link>
-                        <Link to="/#privacy" className="hover:text-white transition-colors">Politique de Confidentialité</Link>
-                        <Link to="/#cookies" className="hover:text-white transition-colors">Cookies</Link>
+                        <Link to="/mentions-legales" className="hover:text-white transition-colors">Mentions Légales</Link>
+                        <Link to="/politique-confidentialite" className="hover:text-white transition-colors">Politique de Confidentialité</Link>
+                        <Link to="/politique-cookies" className="hover:text-white transition-colors">Cookies</Link>
                     </div>
                 </div>
             </div>

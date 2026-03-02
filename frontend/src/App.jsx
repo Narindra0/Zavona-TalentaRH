@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import CandidateList from './pages/CandidateList';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ApplyPage from './pages/ApplyPage';
 import Dashboard from './pages/admin/Dashboard';
 import EditSite from './pages/admin/EditSite';
@@ -16,6 +17,9 @@ import ScrollToTop from './components/ScrollToTop';
 import useSystemDiagnostics from './hooks/useSystemDiagnostics';
 import AssetServiceOverlay from './components/AssetServiceOverlay';
 import CookieConsent from './components/CookieConsent';
+import LegalMentions from './pages/LegalMentions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiesPolicy from './pages/CookiesPolicy';
 
 function App() {
   const [isSessionOptimized, setIsSessionOptimized] = useState(false);
@@ -32,8 +36,12 @@ function App() {
       <Routes>
         {/* Routes Publiques */}
         <Route path="/" element={<Home />} />
+        <Route path="/mentions-legales" element={<LegalMentions />} />
+        <Route path="/politique-confidentialite" element={<PrivacyPolicy />} />
+        <Route path="/politique-cookies" element={<CookiesPolicy />} />
         <Route path="/talents" element={<CandidateList />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/postuler" element={<ApplyPage />} />
 
         {/* Routes Administration protégées */}

@@ -5,11 +5,9 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Skill;
-use App\Models\User;
 use App\Models\EmailTemplate;
 use App\Models\AppSetting;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,46 +18,25 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('Début du peuplement de la base de données...');
         
-        // 1. Créer l'utilisateur admin
-        $this->createAdminUser();
-        
-        // 2. Créer les catégories et sous-catégories
+        // 1. Créer les catégories et sous-catégories
         $this->createCategoriesAndSubCategories();
         
-        // 3. Créer la catégorie par défaut pour classification
+        // 2. Créer la catégorie par défaut pour classification
         $this->createDefaultCategorization();
         
-        // 4. Créer les compétences
+        // 3. Créer les compétences
         $this->createSkills();
         
-        // 5. Créer les modèles d'email
+        // 4. Créer les modèles d'email
         $this->createEmailTemplates();
         
-        // 6. Migrer les mots-clés si le fichier existe
+        // 5. Migrer les mots-clés si le fichier existe
         $this->migrateKeywords();
         
-        // 7. Initialiser les paramètres par défaut de l'application
+        // 6. Initialiser les paramètres par défaut de l'application
         $this->initializeAppSettings();
         
         $this->command->info('Peuplement de la base de données terminé !');
-    }
-    
-    /**
-     * Créer l'utilisateur administrateur
-     */
-    private function createAdminUser(): void
-    {
-        User::firstOrCreate(
-            ['email' => 'admin@zrth.com'],
-            [
-                'name' => 'Administrateur ZRTH',
-                'password' => Hash::make('password123'),
-                'role' => 'ADMIN',
-                'is_active' => true,
-            ]
-        );
-        
-        $this->command->info('✓ Utilisateur admin créé : admin@zrth.com / password123');
     }
     
     /**

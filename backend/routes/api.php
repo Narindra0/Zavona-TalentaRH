@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Auth Routes
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Public API routes

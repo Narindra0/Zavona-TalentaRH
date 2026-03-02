@@ -22,6 +22,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('matricule')->nullable()->unique();
             $table->string('password');
             $table->enum('role', ['admin'])->default('admin');
             $table->boolean('is_active')->default(true);
